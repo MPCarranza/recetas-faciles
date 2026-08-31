@@ -624,6 +624,13 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 1.2rem;
 }
 
+.clean-payment-tag {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #E2ECE6;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
 .hero-rating-clean {
   display: flex;
   align-items: center;
