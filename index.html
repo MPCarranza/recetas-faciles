@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Air Fryer 50 Recetas | Recetario Digital Saludable en PDF</title>
+  <meta name="description" content="No te falta fuerza de voluntad. Te falta un recetario probado con tiempos exactos y recetas que realmente funcionen en tu freidora de aire. 50 recetas dulces y saladas en menos de 20 minutos.">
+  <meta name="keywords" content="recetas air fryer, freidora de aire recetas, recetario saludable pdf, comida sana airfryer, recetas faciles, 50 recetas airfryer">
+  
+  <!-- Open Graph / Social Media -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Air Fryer 50 Recetas | Recetario Digital Saludable">
+  <meta property="og:description" content="50 recetas deliciosas y crujientes para tu freidora de aire. 25 dulces + 25 saladas sin complicaciones.">
+  <meta property="og:image" content="assets/mockup-bundle.jpg">
+
+  <!-- Google Fonts: Outfit, Plus Jakarta Sans, DM Serif Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Top Urgency Announcement Bar -->
+  <div class="top-announcement" id="top-announcement">
+    <div class="container announcement-content">
+      <span class="announcement-badge">⚡ OFERTA DE LANZAMIENTO</span>
+      <p class="announcement-text">
+        <strong>60% DE DESCUENTO</strong> sólo por tiempo limitado. <span class="hide-mobile">Entrega inmediata en tu correo.</span>
+      </p>
+      <div class="countdown-mini" id="countdown-timer">
+        <span class="cd-box"><span id="cd-hours">03</span>h</span> :
+        <span class="cd-box"><span id="cd-minutes">42</span>m</span> :
+        <span class="cd-box"><span id="cd-seconds">19</span>s</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header / Navigation Bar -->
+  <header class="site-header" id="site-header">
+    <div class="container header-container">
+      <a href="#hero" class="brand-logo" aria-label="Ir al inicio">
+        <div class="logo-badge-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-title">Air Fryer</span>
+          <span class="logo-tag">50 RECETAS</span>
+        </div>
+      </a>
+
+      <nav class="header-nav" aria-label="Navegación principal">
+        <a href="#hero" class="nav-link">Inicio</a>
+        <a href="#imagina" class="nav-link">Imaginá esto</a>
+        <a href="#comparativa" class="nav-link">El Camino</a>
+        <a href="#beneficios" class="nav-link">Beneficios</a>
+        <a href="#contenido" class="nav-link">Qué Incluye</a>
+        <a href="#testimonios" class="nav-link">Opiniones</a>
+        <a href="#faq" class="nav-link">FAQ</a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="#oferta" class="btn btn-header btn-pulse" id="header-cta-btn">
+          <span>Quiero mi recetario</span>
+          <svg class="btn-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+    <!-- =========================================================================
+         SECCIÓN 1: HERO CON VIDEO DE FONDO (ESTILO REFERENCIA)
+         ========================================================================= -->
+    <section class="hero-section hero-with-video" id="hero">
+      <!-- Background Video Container -->
+      <div class="hero-video-bg-wrap">
+        <video class="hero-video-bg" autoplay muted loop playsinline poster="assets/phone-screen-bg.jpg">
+          <source src="assets/hero-cooking-hands.mp4" type="video/mp4">
+          <source src="assets/hero-cooking-pan.mp4" type="video/mp4">
+        </video>
+        <div class="hero-video-overlay"></div>
+      </div>
+      <div class="hero-bg-pattern"></div>
+      <div class="container hero-container">
+        
+        <!-- Left Hero Content -->
+        <div class="hero-content">
+          <div class="edition-pill">
+            <span class="pill-icon">📖</span>
+            <span>PRIMERA EDICIÓN • EBOOK DIGITAL EN PDF</span>
+          </div>
+
+          <h1 class="hero-reference-title">
+            No te falta fuerza de voluntad.<br>
+            Te falta un <span class="highlight-serif-italic">recetario probado</span> con tiempos exactos para tu Air Fryer.
+          </h1>
+
+          <p class="hero-reference-sub">
+            Porque comer sano no tiene que ser aburrido, seco ni difícil. Cocinar con la técnica correcta sí funciona. Y acá te enseñamos exactamente cómo preparar 50 platos dulces y salados en menos de 20 minutos.
+          </p>
+
+          <!-- Action Buttons Group (Estilo Referencia con Flechas) -->
+          <div class="hero-buttons-duo">
+            <a href="#oferta" class="btn btn-primary btn-hero-ref btn-shine" id="hero-main-cta">
+              <span class="btn-ref-label">Quiero LA FÓRMULA</span>
+              <span class="btn-ref-arrow">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+              </span>
+            </a>
+
+            <a href="#contenido" class="btn btn-outline-hero" id="hero-secondary-cta">
+              <span>VER RECETAS REALES</span>
+              <svg viewBox="0 0 20 20" fill="currentColor" class="btn-icon"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            </a>
+          </div>
+
+          <!-- Price and Trust Badges -->
+          <div class="hero-price-bar">
+            <div class="price-bubble">
+              <span class="price-strikethrough">Antes $24.99 USD</span>
+              <span class="price-deal">Hoy: <strong>$9.99 USD</strong></span>
+            </div>
+            <div class="hero-rating-clean">
+              <span class="stars-gold">★★★★★</span>
+              <span class="rating-txt"><strong>4.9/5</strong> (+1,850 lectores)</span>
+            </div>
+          </div>
+
+          <div class="hero-trust-list">
+            <div class="trust-item">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              <span>Acceso Inmediato a tu Email</span>
+            </div>
+            <div class="trust-item">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              <span>Apto para Cualquier Air Fryer</span>
+            </div>
+            <div class="trust-item">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              <span>Garantía de 7 Días</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Hero Visual / 3D Mockup -->
+        <div class="hero-visual">
+          <div class="mockup-stage">
+            <div class="bundle-visual-card">
+              <img src="assets/mockup-bundle.jpg" alt="Recetario Air Fryer 50 Recetas Ebook y Freidora de Aire" class="mockup-main-image">
+              
+              <!-- Floating Badges on Mockup -->
+              <div class="floating-badge badge-top-right">
+                <span class="badge-icon">🥗</span>
+                <span class="badge-txt"><strong>100%</strong> Saludable</span>
+              </div>
+
+              <div class="floating-badge badge-bottom-left">
+                <span class="badge-icon">⏱️</span>
+                <span class="badge-txt"><strong>&lt; 20 min</strong> por receta</span>
+              </div>
+
+              <div class="floating-badge badge-sweet-savory">
+                <div class="split-pill">
+                  <span class="part-sweet">🍪 25 Dulces</span>
+                  <span class="part-savory">🍗 25 Saladas</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="devices-supported">
+              <span class="device-icon">📱</span>
+              <span class="device-icon">💻</span>
+              <span class="device-icon">📄</span>
+              <span>Léelo en tu Celular, Tablet, Computadora o Imprímelo</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Social Proof Bar -->
+    <section class="trust-bar-section">
+      <div class="container">
+        <div class="trust-bar-grid">
+          <div class="trust-bar-card">
+            <div class="t-icon">⚡</div>
+            <div class="t-info">
+              <h4>Descarga Inmediata</h4>
+              <p>Accede en 30 segundos tras tu compra</p>
+            </div>
+          </div>
+          <div class="trust-bar-card">
+            <div class="t-icon">🛒</div>
+            <div class="t-info">
+              <h4>Ingredientes Simples</h4>
+              <p>Sin ingredientes raros ni caros</p>
+            </div>
+          </div>
+          <div class="trust-bar-card">
+            <div class="t-icon">🛡️</div>
+            <div class="t-info">
+              <h4>Garantía 100% Segura</h4>
+              <p>7 días de prueba sin ningún riesgo</p>
+            </div>
+          </div>
+          <div class="trust-bar-card">
+            <div class="t-icon">♾️</div>
+            <div class="t-info">
+              <h4>Acceso de por Vida</h4>
+              <p>Tuyo para siempre con actualizaciones</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECCIÓN 2: "IMAGINÁ ESTO" (DISEÑO IDÉNTICO A LA REFERENCIA CON TELÉFONO Y NOTIFICACIONES)
+         ========================================================================= -->
+    <section class="imagina-section-ref" id="imagina">
+      <div class="imagina-pattern-overlay"></div>
+      <div class="container imagina-grid-container">
+        
+        <!-- Left Side: Editorial Storytelling Content -->
+        <div class="imagina-text-col">
+          <span class="imagina-eyebrow-clean">IMAGINÁ ESTO</span>
+          
+          <h2 class="imagina-heading-serif">
+            ¿Cómo se ve tu vida cuando tu freidora de aire cocina para vos?
+          </h2>
+
+          <p class="imagina-body-bold">
+            Son las 8:30pm. Llegaste a casa cansado/a después de un día largo. En solo 3 minutos preparaste los ingredientes, los pusiste en la canasta y te fuiste a descansar. Sin sartenes sucias, sin aceite salpicando y sin pedir delivery caro. No estás apagando incendios con comida rápida. Estás disfrutando de comer sano, rico y crujiente todos los días.
+          </p>
+
+          <p class="imagina-footer-note">
+            Eso es lo que logramos juntos en el recetario Air Fryer 50 Recetas.
+          </p>
+        </div>
+
+        <!-- Right Side: Realistic Phone Mockup with Floating Chat Bubbles -->
+        <div class="imagina-phone-col">
+          <div class="phone-composition-wrapper">
+            
+            <!-- Smartphone Device Frame -->
+            <div class="phone-frame">
+              <div class="phone-speaker-notch">
+                <div class="phone-camera-dot"></div>
+                <div class="phone-speaker-bar"></div>
+              </div>
+              
+              <!-- Screen Content -->
+              <div class="phone-screen">
+                <div class="phone-screen-header">
+                  <span class="phone-date">Hoy • 20:30</span>
+                  <span class="phone-battery">🔋 98%</span>
+                </div>
+                <img src="assets/phone-screen-bg.jpg" alt="Recetas crujientes en freidora de aire" class="phone-screen-img">
+                <div class="phone-screen-gradient"></div>
+              </div>
+            </div>
+
+            <!-- Floating Chat Bubble 1 (Top Left/Center) -->
+            <div class="chat-bubble bubble-pos-1">
+              <div class="bubble-avatar av-1">👩</div>
+              <div class="bubble-content">
+                <span class="bubble-quote-mark">“</span>
+                <p>¡Hice las galletas de avena y choco-chips en 8 min y quedaron INCREÍBLES! Mis hijos se comieron todas 😍</p>
+              </div>
+            </div>
+
+            <!-- Floating Chat Bubble 2 (Middle Right) -->
+            <div class="chat-bubble bubble-pos-2">
+              <div class="bubble-avatar av-2">👨</div>
+              <div class="bubble-content">
+                <span class="bubble-quote-mark">“</span>
+                <p>El pollo BBQ quedó súper jugoso por dentro y doradito por fuera. Cero aceite y cero olor en la cocina 🙌</p>
+              </div>
+            </div>
+
+            <!-- Floating Chat Bubble 3 (Middle Left) -->
+            <div class="chat-bubble bubble-pos-3">
+              <div class="bubble-avatar av-3">👱‍♀️</div>
+              <div class="bubble-content">
+                <span class="bubble-quote-mark">“</span>
+                <p>Llegué tarde del trabajo y en 12 minutos tenía una cena deliciosa y sana lista. ¡El mejor recetario que compré! 🥗</p>
+              </div>
+            </div>
+
+            <!-- Floating Chat Bubble 4 (Bottom Right) -->
+            <div class="chat-bubble bubble-pos-4">
+              <div class="bubble-avatar av-4">👩‍🦰</div>
+              <div class="bubble-content">
+                <span class="bubble-quote-mark">“</span>
+                <p>Por fin una guía con tiempos y temperaturas EXACTAS. Ya no se me quema ni me queda crudo nada 👏</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Right Brand Stamp Seal -->
+      <div class="imagina-stamp-seal">
+        <svg viewBox="0 0 100 100" class="rotating-text-svg">
+          <path id="circlePath" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none"/>
+          <text font-size="9.5" font-weight="700" fill="#FED500" letter-spacing="2">
+            <textPath href="#circlePath" startOffset="0%">• AIR FRYER 50 RECETAS • 100% SALUDABLE </textPath>
+          </text>
+        </svg>
+        <div class="stamp-center-icon">✨</div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECCIÓN 3: "EL CAMINO QUE YA PROBASTE VS. EL QUE REALMENTE FUNCIONA"
+         (ESTILO REFERENCIA)
+         ========================================================================= -->
+    <section class="comparison-ref-section" id="comparativa">
+      <div class="container">
+        
+        <div class="comp-header text-center">
+          <h2 class="comp-main-title">
+            El camino que ya probaste <span class="vs-badge">vs.</span> <span class="highlight-serif-italic">el que realmente funciona</span>
+          </h2>
+          <p class="comp-subtitle">
+            Descubre por qué tantas personas se frustran cocinando en Air Fryer y cómo cambiar tus resultados desde hoy mismo:
+          </p>
+        </div>
+
+        <div class="comp-duo-grid">
+          
+          <!-- Card 1: Lo que ya probaste -->
+          <div class="comp-card card-old-way">
+            <div class="comp-card-top">
+              <span class="comp-card-badge badge-red">LA FORMA FRUSTRANTE</span>
+              <h3 class="comp-card-title serif-italic">Lo que ya probaste</h3>
+            </div>
+            
+            <ul class="comp-items-list">
+              <li class="comp-item-row item-negative">
+                <span class="icon-cross">✕</span>
+                <p>Buscar recetas en internet con tiempos inventados y terminar con la comida quemada o cruda.</p>
+              </li>
+              <li class="comp-item-row item-negative">
+                <span class="icon-cross">✕</span>
+                <p>Caer en la rutina de siempre lo mismo: papas fritas congeladas y nuggets procesados.</p>
+              </li>
+              <li class="comp-item-row item-negative">
+                <span class="icon-cross">✕</span>
+                <p>Creer que comer saludable significa pollo hervido, seco y totalmente sin sabor.</p>
+              </li>
+              <li class="comp-item-row item-negative">
+                <span class="icon-cross">✕</span>
+                <p>Comprar recetarios con ingredientes raros, caros e imposibles de conseguir en el súper.</p>
+              </li>
+              <li class="comp-item-row item-negative">
+                <span class="icon-cross">✕</span>
+                <p>Ensuciar mil cosas en la cocina, frustrarte y terminar gastando dinero en comida rápida.</p>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Card 2: Con Air Fryer 50 Recetas -->
+          <div class="comp-card card-new-way">
+            <div class="comp-card-top">
+              <span class="comp-card-badge badge-green-glow">LA SOLUCIÓN PROBADA</span>
+              <h3 class="comp-card-title text-green-primary">Con Air Fryer 50 Recetas</h3>
+            </div>
+
+            <ul class="comp-items-list">
+              <li class="comp-item-row item-positive">
+                <span class="icon-check">✓</span>
+                <p><strong>Tiempos y temperaturas exactas (°C y °F)</strong> para que todo quede perfecto, crujiente y jugoso al primer intento.</p>
+              </li>
+              <li class="comp-item-row item-positive">
+                <span class="icon-check">✓</span>
+                <p><strong>50 recetas variadas y deliciosas:</strong> 25 saladas para tus comidas + 25 postres y dulces fit para tus antojos sin culpa.</p>
+              </li>
+              <li class="comp-item-row item-positive">
+                <span class="icon-check">✓</span>
+                <p><strong>Ingredientes 100% accesibles</strong> y económicos que ya tienes en casa o compras en cualquier tienda.</p>
+              </li>
+              <li class="comp-item-row item-positive">
+                <span class="icon-check">✓</span>
+                <p><strong>Preparaciones express listas en menos de 20 minutos</strong> con mínimo esfuerzo y cero desorden.</p>
+              </li>
+              <li class="comp-item-row item-positive">
+                <span class="icon-check">✓</span>
+                <p><strong>Información nutricional y porciones claras</strong> para cuidar tu salud y la de toda tu familia comiendo delicioso.</p>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- CTA Directo de la Comparativa (Estilo Referencia) -->
+        <div class="comp-cta-wrap text-center">
+          <a href="#oferta" class="btn btn-primary btn-xl btn-shine btn-comp-cta" id="comp-cta-btn">
+            <span class="btn-ref-label">¡QUIERO MI RECETARIO AHORA!</span>
+            <span class="btn-ref-arrow">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+            </span>
+          </a>
+          <span class="comp-cta-note">🔒 Pago seguro • Descarga inmediata en PDF a tu correo</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECCIÓN 4: BENEFICIOS CLAVE
+         ========================================================================= -->
+    <section class="benefits-section" id="beneficios">
+      <div class="container">
+        <div class="section-badge badge-primary">BENEFICIOS CLAVE</div>
+        <h2 class="section-title text-center">
+          Todo lo que necesitas para dominar tu Air Fryer <span class="highlight-green">en un solo recetario</span>
+        </h2>
+        <p class="section-lead text-center">
+          Diseñado paso a paso para personas con poco tiempo que quieren comer delicioso, quemar grasa y disfrutar de la comida real.
+        </p>
+
+        <div class="benefits-grid">
+          
+          <!-- Benefit 1 -->
+          <div class="benefit-card">
+            <div class="benefit-header">
+              <div class="benefit-icon bg-green">🍗</div>
+              <span class="benefit-number">01</span>
+            </div>
+            <h3 class="benefit-title">25 Recetas Saladas Irresistibles</h3>
+            <p class="benefit-text">
+              Desde pechugas crujientes y jugosas, salmón teriyaki, albóndigas caseras, wraps dorados, hasta vegetales caramelizados y papas crocantes con 90% menos aceite.
+            </p>
+            <ul class="benefit-list">
+              <li>✓ Almuerzos y cenas listos en minutos</li>
+              <li>✓ Textura dorada por fuera y suave por dentro</li>
+              <li>✓ Altos en proteína y saciantes</li>
+            </ul>
+          </div>
+
+          <!-- Benefit 2 -->
+          <div class="benefit-card">
+            <div class="benefit-header">
+              <div class="benefit-icon bg-yellow">🍪</div>
+              <span class="benefit-number">02</span>
+            </div>
+            <h3 class="benefit-title">25 Postres y Snacks Dulces</h3>
+            <p class="benefit-text">
+              Mata los antojos de dulce de forma inteligente: cookies de chocolate saludables, donas de avena, mug cakes esponjosos, churros ligeros y chips de manzana con canela.
+            </p>
+            <ul class="benefit-list">
+              <li>✓ Sin azúcares refinados innecesarios</li>
+              <li>✓ Perfectos para meriendas y desayunos</li>
+              <li>✓ Ideales para toda la familia y niños</li>
+            </ul>
+          </div>
+
+          <!-- Benefit 3 -->
+          <div class="benefit-card">
+            <div class="benefit-header">
+              <div class="benefit-icon bg-green">⏱️</div>
+              <span class="benefit-number">03</span>
+            </div>
+            <h3 class="benefit-title">Tiempos y Temperaturas Exactas</h3>
+            <p class="benefit-text">
+              Olvídate de adivinar o revisar la canasta cada 2 minutos. Cada receta viene con los grados (°C y °F) y minutos exactos para garantizar un resultado perfecto al primer intento.
+            </p>
+            <ul class="benefit-list">
+              <li>✓ Cero platos quemados o crudos</li>
+              <li>✓ Guía de precalentado óptimo</li>
+              <li>✓ Tips de doración uniforme</li>
+            </ul>
+          </div>
+
+          <!-- Benefit 4 -->
+          <div class="benefit-card">
+            <div class="benefit-header">
+              <div class="benefit-icon bg-yellow">🛒</div>
+              <span class="benefit-number">04</span>
+            </div>
+            <h3 class="benefit-title">Ingredientes Económicos y Accesibles</h3>
+            <p class="benefit-text">
+              No tienes que ir a tiendas especializadas ni gastar una fortuna. El 100% de los ingredientes los encuentras en cualquier supermercado o verdulería de tu barrio.
+            </p>
+            <ul class="benefit-list">
+              <li>✓ Recetas amigables con tu bolsillo</li>
+              <li>✓ Sustituciones fáciles si te falta algo</li>
+              <li>✓ Aprovechas lo que ya tienes en tu alacena</li>
+            </ul>
+          </div>
+
+          <!-- Benefit 5 -->
+          <div class="benefit-card">
+            <div class="benefit-header">
+              <div class="benefit-icon bg-green">📊</div>
+              <span class="benefit-number">05</span>
+            </div>
+            <h3 class="benefit-title">Información Nutricional & Porciones</h3>
+            <p class="benefit-text">
+              Cada preparación incluye calorías aproximadas, número de porciones y nivel de dificultad para que lleves el control de tu alimentación fácilmente sin obsesionarte.
+            </p>
+            <ul class="benefit-list">
+              <li>✓ Ideal para déficit o mantenimiento</li>
+              <li>✓ Recetas bajas en grasas saturadas</li>
+              <li>✓ Opciones bajas en carbohidratos (Low Carb)</li>
+            </ul>
+          </div>
+
+          <!-- Benefit 6 -->
+          <div class="benefit-card">
+            <div class="benefit-header">
+              <div class="benefit-icon bg-yellow">📲</div>
+              <span class="benefit-number">06</span>
+            </div>
+            <h3 class="benefit-title">Formato PDF Digital de Alta Calidad</h3>
+            <p class="benefit-text">
+              Diseño limpio, moderno y con fotografías reales a todo color. Puedes leerlo cómodamente en tu teléfono mientras cocinas, en tu tablet o imprimir tus páginas favoritas.
+            </p>
+            <ul class="benefit-list">
+              <li>✓ Descarga instantánea en cualquier dispositivo</li>
+              <li>✓ Índice interactivo con enlaces directos</li>
+              <li>✓ Acceso para siempre sin suscripciones</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Visual Preview Section: Qué incluye -->
+    <section class="content-preview-section" id="contenido">
+      <div class="container">
+        <div class="split-preview-header text-center">
+          <div class="section-badge badge-primary">EBOOK POR DENTRO</div>
+          <h2 class="section-title">El Balance Perfecto: <span class="highlight-yellow">25 Dulces</span> + <span class="highlight-green">25 Saladas</span></h2>
+          <p class="section-lead">Un vistazo a algunos de los platos que vas a cocinar hoy mismo:</p>
+        </div>
+
+        <div class="recipes-split-grid">
+          
+          <!-- Column: Saladas -->
+          <div class="recipe-col savory-col">
+            <div class="col-badge-header green-header">
+              <span class="col-icon">🍗</span>
+              <h3>25 Recetas Saladas (Platos Fuertes & Snacks)</h3>
+            </div>
+            <div class="recipe-item-list">
+              <div class="recipe-mini-card">
+                <span class="recipe-num">01</span>
+                <div class="recipe-detail">
+                  <h4>Pollo Crujiente Estilo BBQ Saludable</h4>
+                  <p>Dorado perfecto sin una sola gota de fritura profunda.</p>
+                </div>
+                <span class="recipe-time">18 min</span>
+              </div>
+
+              <div class="recipe-mini-card">
+                <span class="recipe-num">02</span>
+                <div class="recipe-detail">
+                  <h4>Salmón Glaseado con Mostaza y Miel</h4>
+                  <p>Jugoso por dentro con costra crujiente e irresistible.</p>
+                </div>
+                <span class="recipe-time">12 min</span>
+              </div>
+
+              <div class="recipe-mini-card">
+                <span class="recipe-num">03</span>
+                <div class="recipe-detail">
+                  <h4>Hamburguesas Caseras de Avena y Ternera</h4>
+                  <p>Altas en proteína y listas sin salpicar aceite en la cocina.</p>
+                </div>
+                <span class="recipe-time">14 min</span>
+              </div>
+
+              <div class="recipe-mini-card">
+                <span class="recipe-num">04</span>
+                <div class="recipe-detail">
+                  <h4>Mix de Vegetales Rústicos Caramelizados</h4>
+                  <p>Zanahorias, brócoli y calabacín crocantes llenos de sabor.</p>
+                </div>
+                <span class="recipe-time">15 min</span>
+              </div>
+
+              <div class="recipe-mini-card">
+                <span class="recipe-num">05</span>
+                <div class="recipe-detail">
+                  <h4>Taquitos Dorados de Pollo Fit</h4>
+                  <p>Sabor callejero tradicional con solo 1 spray de aceite de oliva.</p>
+                </div>
+                <span class="recipe-time">10 min</span>
+              </div>
+
+              <div class="more-recipes-note">
+                <span>+ 20 recetas saladas más dentro del libro...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column: Dulces -->
+          <div class="recipe-col sweet-col">
+            <div class="col-badge-header yellow-header">
+              <span class="col-icon">🍪</span>
+              <h3>25 Recetas Dulces (Postres & Meriendas)</h3>
+            </div>
+            <div class="recipe-item-list">
+              <div class="recipe-mini-card">
+                <span class="recipe-num">26</span>
+                <div class="recipe-detail">
+                  <h4>Cookies Chocochip de Avena y Plátano</h4>
+                  <p>Bordes crocantes y centro suave sin azúcar blanca.</p>
+                </div>
+                <span class="recipe-time">8 min</span>
+              </div>
+
+              <div class="recipe-mini-card">
+                <span class="recipe-num">27</span>
+                <div class="recipe-detail">
+                  <h4>Donas Fit de Yogur y Canela</h4>
+                  <p>Esponjosas y doradas, ideales para el café de la tarde.</p>
+                </div>
+                <span class="recipe-time">10 min</span>
+              </div>
+
+              <div class="recipe-mini-card">
+                <span class="recipe-num">28</span>
+                <div class="recipe-detail">
+                  <h4>Mug Cake de Chocolate Fondant</h4>
+                  <p>Bizcocho de chocolate intenso con corazón fundido.</p>
+                </div>
+                <span class="recipe-time">6 min</span>
+              </div>
+
+              <div class="recipe-mini-card">
+                <span class="recipe-num">29</span>
+                <div class="recipe-detail">
+                  <h4>Chips de Manzana Crocantes</h4>
+                  <p>Snack dulce 100% natural sin añadidos para picar sin culpa.</p>
+                </div>
+                <span class="recipe-time">12 min</span>
+              </div>
+
+              <div class="recipe-mini-card">
+                <span class="recipe-num">30</span>
+                <div class="recipe-detail">
+                  <h4>Tostadas Francesas Rellenas de Frutilla</h4>
+                  <p>Desayuno gourmet de restaurante en menos de 10 minutos.</p>
+                </div>
+                <span class="recipe-time">9 min</span>
+              </div>
+
+              <div class="more-recipes-note">
+                <span>+ 20 recetas dulces más dentro del libro...</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Llamado a la Acción (CTA Intermedio) -->
+    <section class="mid-cta-section">
+      <div class="container">
+        <div class="mid-cta-card">
+          <div class="mid-cta-badge">🔥 OFERTA EXCLUSIVA DE ESTA SEMANA</div>
+          <h2 class="mid-cta-title">¿Listo/a para transformar tus comidas y ahorrar horas cada día?</h2>
+          <p class="mid-cta-desc">
+            Únete a más de 1,850 personas que ya están disfrutando de platos crujientes y saludables sin ensuciar la cocina.
+          </p>
+
+          <div class="price-box-container">
+            <div class="price-strikethrough">Precio normal: $24.99 USD</div>
+            <div class="price-current-large">HOY: <span>$9.99 USD</span></div>
+            <div class="price-save-tag">Ahorras más del 60%</div>
+          </div>
+
+          <a href="#oferta" class="btn btn-primary btn-xl btn-shine" id="mid-cta-button">
+            <span class="btn-text">¡QUIERO MI RECETARIO EN PDF AHORA!</span>
+            <span class="btn-subtext">Descarga automática e inmediata a tu correo</span>
+          </a>
+
+          <div class="guarantee-mini-text">
+            <span>🔒 Pago 100% Seguro y Encriptado • 🛡️ Garantía de Satisfacción 7 Días</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bonos Gratis de Regalo -->
+    <section class="bonuses-section">
+      <div class="container">
+        <div class="section-badge badge-primary">REGALOS EXCLUSIVOS</div>
+        <h2 class="section-title text-center">
+          Si ordenas hoy, te llevas estos <span class="highlight-yellow">3 Bonos GRATIS</span>
+        </h2>
+        <p class="section-lead text-center">
+          Diseñados para complementar tu recetario y sacar el 100% del provecho a tu freidora de aire.
+        </p>
+
+        <div class="bonuses-grid">
+          
+          <!-- Bonus 1 -->
+          <div class="bonus-card">
+            <div class="bonus-tag">BONO #1 • GRATIS</div>
+            <div class="bonus-icon">📋</div>
+            <h3 class="bonus-title">Tabla Maestra Imprimible de Tiempos y Temperaturas</h3>
+            <p class="bonus-desc">
+              Una guía rápida de una sola página para pegar en tu refrigerador con las temperaturas y minutos de carnes, pescados, verduras y masas.
+            </p>
+            <div class="bonus-value">
+              <span>Valor Real: $9.00 USD</span>
+              <strong class="free-pill">HOY GRATIS</strong>
+            </div>
+          </div>
+
+          <!-- Bonus 2 -->
+          <div class="bonus-card">
+            <div class="bonus-tag">BONO #2 • GRATIS</div>
+            <div class="bonus-icon">🧼</div>
+            <h3 class="bonus-title">Guía de Cuidado, Desodorización y Limpieza Profunda</h3>
+            <p class="bonus-desc">
+              Los trucos caseros para que tu Air Fryer no guarde olores, la capa antiadherente dure años y se limpie en menos de 2 minutos sin esfuerzo.
+            </p>
+            <div class="bonus-value">
+              <span>Valor Real: $7.00 USD</span>
+              <strong class="free-pill">HOY GRATIS</strong>
+            </div>
+          </div>
+
+          <!-- Bonus 3 -->
+          <div class="bonus-card">
+            <div class="bonus-tag">BONO #3 • GRATIS</div>
+            <div class="bonus-icon">⚡</div>
+            <h3 class="bonus-title">Pack "10 Recetas de Rescate en 12 Minutos"</h3>
+            <p class="bonus-desc">
+              Preparaciones ultrarrápidas de emergencia para cuando llegas tarde a casa sin tiempo ni ganas de pensar qué cenar.
+            </p>
+            <div class="bonus-value">
+              <span>Valor Real: $12.00 USD</span>
+              <strong class="free-pill">HOY GRATIS</strong>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonios Reales -->
+    <section class="testimonials-section" id="testimonios">
+      <div class="container">
+        <div class="section-badge badge-primary">TESTIMONIOS REALES</div>
+        <h2 class="section-title text-center">
+          Lo que dicen quienes ya están cocinando con <span class="highlight-green">este recetario</span>
+        </h2>
+        <p class="section-lead text-center">
+          Historias de personas reales que recuperaron las ganas de cocinar saludable.
+        </p>
+
+        <div class="testimonials-grid">
+          
+          <div class="testimonial-card">
+            <div class="test-stars">★★★★★</div>
+            <p class="test-quote">
+              "Compré la freidora hace 6 meses y solo hacía papas fritas congeladas. Este recetario me cambió la vida. Las galletas de avena y el pollo crujiente salen espectaculares. ¡Valió cada centavo!"
+            </p>
+            <div class="test-author">
+              <div class="author-avatar">CM</div>
+              <div class="author-info">
+                <strong>Camila Morales</strong>
+                <span>Compradora verificada • Santiago, Chile</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial-card">
+            <div class="test-stars">★★★★★</div>
+            <p class="test-quote">
+              "Lo que más me gustó son los tiempos exactos. Antes siempre me quedaban las carnes secas y ahora quedan súper jugosas. Los postres son un 10 para no romper la dieta."
+            </p>
+            <div class="test-author">
+              <div class="author-avatar">MR</div>
+              <div class="author-info">
+                <strong>Mariano Romero</strong>
+                <span>Comprador verificado • Buenos Aires, Arg</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial-card">
+            <div class="test-stars">★★★★★</div>
+            <p class="test-quote">
+              "Trabajo todo el día y no tengo tiempo de cocinar platos complicados. Este PDF lo tengo en mi celular y en 15 minutos tengo una cena rica y sana. La tabla de temperaturas de regalo es genial."
+            </p>
+            <div class="test-author">
+              <div class="author-avatar">VP</div>
+              <div class="author-info">
+                <strong>Valentina Paredes</strong>
+                <span>Compradora verificada • CDMX, México</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Garantía Incondicional de 7 Días -->
+    <section class="guarantee-section">
+      <div class="container">
+        <div class="guarantee-card">
+          <div class="guarantee-badge-shield">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+            </svg>
+            <span>7 DÍAS</span>
+          </div>
+
+          <div class="guarantee-content">
+            <h3 class="guarantee-title">Garantía Incondicional de Satisfacción de 7 Días</h3>
+            <p class="guarantee-text">
+              Queremos que pruebes las recetas sin ningún riesgo. Descarga el recetario, prepara las recetas dulces y saladas en tu freidora de aire, y si por cualquier motivo sientes que no superó tus expectativas, escríbenos dentro de los primeros 7 días y te devolvemos el <strong>100% de tu dinero</strong> de inmediato. Sin preguntas ni complicaciones.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Oferta Principal / Checkout CTA Final -->
+    <section class="final-offer-section" id="oferta">
+      <div class="container">
+        
+        <div class="offer-box">
+          <div class="offer-box-header">
+            <div class="offer-pill-badge">OFERTA ESPECIAL POR TIEMPO LIMITADO</div>
+            <h2 class="offer-main-title">Llévate el Pack Completo "Air Fryer 50 Recetas"</h2>
+            <p class="offer-main-sub">Todo lo que necesitas para cocinar rico, rápido y saludable desde hoy</p>
+          </div>
+
+          <div class="offer-box-body">
+            
+            <!-- Left: Resumen de lo que incluye -->
+            <div class="offer-summary-list">
+              <h3 class="summary-title">Esto es todo lo que recibes de inmediato:</h3>
+              
+              <div class="summary-item">
+                <span class="check-icon">✓</span>
+                <div class="item-desc">
+                  <strong>Ebook Completo "Air Fryer 50 Recetas" (PDF)</strong>
+                  <span>25 Recetas Saladas + 25 Recetas Dulces con fotos y pasos claros</span>
+                </div>
+                <span class="item-val">$24.99</span>
+              </div>
+
+              <div class="summary-item bonus-row">
+                <span class="check-icon">✓</span>
+                <div class="item-desc">
+                  <strong>Bono #1: Tabla Maestra de Tiempos y Temperaturas</strong>
+                  <span>Guía visual rápida de consulta para tu cocina</span>
+                </div>
+                <span class="item-val item-free">$9.00</span>
+              </div>
+
+              <div class="summary-item bonus-row">
+                <span class="check-icon">✓</span>
+                <div class="item-desc">
+                  <strong>Bono #2: Guía de Limpieza y Cuidado de la Air Fryer</strong>
+                  <span>Trucos para mantener tu freidora como nueva</span>
+                </div>
+                <span class="item-val item-free">$7.00</span>
+              </div>
+
+              <div class="summary-item bonus-row">
+                <span class="check-icon">✓</span>
+                <div class="item-desc">
+                  <strong>Bono #3: Pack 10 Recetas de Rescate en 12 Minutos</strong>
+                  <span>Soluciones ultra express para días de emergencia</span>
+                </div>
+                <span class="item-val item-free">$12.00</span>
+              </div>
+
+              <div class="summary-item">
+                <span class="check-icon">✓</span>
+                <div class="item-desc">
+                  <strong>Acceso de por vida + Actualizaciones futuras</strong>
+                  <span>Sin cuotas mensuales ni cobros adicionales</span>
+                </div>
+                <span class="item-val item-free">INCLUIDO</span>
+              </div>
+
+              <div class="total-value-row">
+                <span>Valor Total del Paquete:</span>
+                <span class="total-val-struck">$52.99 USD</span>
+              </div>
+            </div>
+
+            <!-- Right: Tarjeta de Precio y Botón de Pago -->
+            <div class="offer-checkout-card">
+              <div class="promo-discount-badge">60% OFF HOY</div>
+              
+              <div class="checkout-price-wrap">
+                <span class="only-today-text">PRECIO PROMOCIONAL HOY:</span>
+                <div class="price-number">
+                  <span class="currency">$</span>
+                  <span class="amount">9.99</span>
+                  <span class="cents">USD</span>
+                </div>
+                <span class="one-time-payment">Pago único • Sin suscripciones</span>
+              </div>
+
+              <a href="https://tu-enlace-de-pago.com" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-xl btn-block btn-shine btn-action-pulse" id="btn-final-checkout">
+                <span class="btn-text">¡SÍ, QUIERO MI RECETARIO!</span>
+                <span class="btn-subtext">Hacer clic para comprar y descargar</span>
+              </a>
+
+              <div class="security-payment-info">
+                <div class="security-row">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                  <span>Pago 100% Protegido con Encriptación SSL de 256 bits</span>
+                </div>
+                <div class="payment-cards-icons">
+                  <span class="pay-chip">💳 Visa</span>
+                  <span class="pay-chip">💳 Mastercard</span>
+                  <span class="pay-chip">🅿️ PayPal</span>
+                  <span class="pay-chip">💳 AMEX</span>
+                  <span class="pay-chip">🍎 Apple Pay</span>
+                </div>
+                <p class="instant-delivery-notice">
+                  📧 Recibirás el acceso de descarga en tu correo electrónico segundos después de completar tu pago.
+                </p>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 6. Preguntas Frecuentes (FAQ) -->
+    <section class="faq-section" id="faq">
+      <div class="container faq-container">
+        <div class="section-badge badge-primary">RESOLVEMOS TUS DUDAS</div>
+        <h2 class="section-title text-center">Preguntas Frecuentes</h2>
+        <p class="section-lead text-center">Todo lo que necesitas saber antes de comprar tu recetario.</p>
+
+        <div class="accordion" id="faq-accordion">
+          
+          <div class="accordion-item">
+            <button class="accordion-header" aria-expanded="false">
+              <span>¿Cómo y cuándo recibiré mi recetario?</span>
+              <svg class="chevron-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            </button>
+            <div class="accordion-body">
+              <p>El recetario es <strong>100% digital en formato PDF</strong>. Inmediatamente después de confirmar tu pago, el sistema te enviará un correo con el enlace de descarga para que lo guardes en tu celular, tablet o computadora y comiences a cocinar al instante.</p>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header" aria-expanded="false">
+              <span>¿Sirve para cualquier marca o tamaño de freidora de aire?</span>
+              <svg class="chevron-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            </button>
+            <div class="accordion-body">
+              <p><strong>¡Sí, totalmente!</strong> Las recetas y los parámetros de temperatura y tiempo están testeados para funcionar en cualquier modelo y marca de Air Fryer (Ninja, Philips, Cosori, Xiaomi, Moulinex, Oster, Cecotec, etc.), tanto en freidoras de canasta como de horno.</p>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header" aria-expanded="false">
+              <span>¿Necesito saber de cocina o tener experiencia previa?</span>
+              <svg class="chevron-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            </button>
+            <div class="accordion-body">
+              <p>Para nada. Las recetas están redactadas en un lenguaje simple, directo y paso a paso. Solo necesitas preparar los ingredientes, colocarlos en la canasta, ajustar los minutos y grados indicados, ¡y listo!</p>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header" aria-expanded="false">
+              <span>¿Puedo imprimir el libro si prefiero tenerlo en papel?</span>
+              <svg class="chevron-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            </button>
+            <div class="accordion-body">
+              <p>¡Claro que sí! El archivo PDF viene configurado en alta resolución y listo para impresión estándar si deseas anillarlo o imprimir tus recetas favoritas para la cocina.</p>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header" aria-expanded="false">
+              <span>¿Qué métodos de pago aceptan?</span>
+              <svg class="chevron-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            </button>
+            <div class="accordion-body">
+              <p>Aceptamos todas las tarjetas de crédito y débito (Visa, Mastercard, American Express), PayPal, Apple Pay, Google Pay y métodos locales según tu país a través de la pasarela de pago segura.</p>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header" aria-expanded="false">
+              <span>¿Qué pasa si el recetario no me convence?</span>
+              <svg class="chevron-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            </button>
+            <div class="accordion-body">
+              <p>Tienes <strong>7 días completos de garantía</strong>. Si por cualquier motivo no estás 100% satisfecho/a, nos envías un correo electrónico y procesamos el reembolso total de tu dinero de manera inmediata.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- Sticky Bottom Mobile CTA Bar -->
+  <div class="floating-mobile-bar" id="floating-bar">
+    <div class="container floating-bar-content">
+      <div class="float-price">
+        <span class="float-tag">OFERTA HOY</span>
+        <span class="float-amount">$9.99 USD</span>
+      </div>
+      <a href="#oferta" class="btn btn-primary btn-float">
+        <span>¡Quiero mi recetario!</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-container">
+      
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="logo-text">
+            <span class="logo-title">Air Fryer</span>
+            <span class="logo-tag">50 RECETAS</span>
+          </div>
+          <p class="footer-bio">
+            La guía digital definitiva con 50 recetas saludables, crujientes y rápidas (25 dulces y 25 saladas) para tu freidora de aire.
+          </p>
+        </div>
+
+        <div class="footer-links">
+          <h4>Enlaces Rápidos</h4>
+          <ul>
+            <li><a href="#hero">Inicio</a></li>
+            <li><a href="#imagina">Imaginá esto</a></li>
+            <li><a href="#comparativa">El Camino</a></li>
+            <li><a href="#beneficios">Beneficios</a></li>
+            <li><a href="#contenido">Qué Incluye</a></li>
+            <li><a href="#oferta">Comprar Recetario</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-security">
+          <h4>Compra 100% Segura</h4>
+          <p>Tus datos están protegidos con los más altos estándares de seguridad.</p>
+          <div class="footer-badges">
+            <span class="f-badge">🔒 SSL Seguro</span>
+            <span class="f-badge">🛡️ Garantía 7 Días</span>
+            <span class="f-badge">⚡ Entrega Inmediata</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="copyright">
+          © <span id="current-year">2026</span> Air Fryer 50 Recetas • Todos los derechos reservados.
+        </p>
+        <p class="disclaimer">
+          Descargo de responsabilidad: Este sitio web no está afiliado a ninguna marca comercial de freidoras de aire ni a Meta/Facebook. Los resultados pueden variar según el uso y modelo del equipo.
+        </p>
+      </div>
+
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
