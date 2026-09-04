@@ -1043,16 +1043,28 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .bubble-avatar {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
+  overflow: hidden;
   flex-shrink: 0;
-  background-color: #F1F5F9;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.avatar-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bubble-author-name {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 0.15rem;
 }
 
 .bubble-content {
