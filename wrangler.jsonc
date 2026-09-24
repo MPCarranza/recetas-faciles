@@ -3,6 +3,16 @@
   "name": "recetas-faciles",
   "main": "worker.js",
   "compatibility_date": "2026-09-24",
+  "routes": [
+    {
+      "pattern": "buenasrecetas.com.ar",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.buenasrecetas.com.ar",
+      "custom_domain": true
+    }
+  ],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
