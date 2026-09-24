@@ -1,96 +1,148 @@
-# Integración de Mercado Pago — Recetario Air Fryer 365 Recetas
+# Recetas fáciles + Mercado Pago
 
-Resumen corto:
+La integración usa **Checkout Pro**: el comprador sale al entorno seguro de
+Mercado Pago, completa el pago y vuelve al sitio. Para un único producto digital
+es la opción con mejor equilibrio entre conversión, seguridad y mantenimiento.
 
-- Recomendación: usar **Checkout Pro de Mercado Pago** (preferible para ventas digitales rápidas). Es simple, seguro y evita manejar tarjetas en tu servidor.
+## 1. Crear la aplicación en Mercado Pago
 
-Qué agregué al proyecto:
+La creación requiere iniciar sesión y confirmar la identidad del titular:
 
-- Un servidor Node.js mínimo que expone `POST /create_preference` para crear una preference en Mercado Pago.
-- Frontend actualizado para iniciar el checkout llamando al endpoint y redirigir al `init_point` (o `sandbox_init_point` en modo pruebas).
+1. Entrá a [Tus integraciones](https://www.mercadopago.com.ar/developers/panel/app).
+2. Elegí **Crear aplicación**.
+3. Nombre sugerido: `Air Fryer 365 Recetas`.
+4. Seleccioná **Pagos online**, indicá que no usás una plataforma de e-commerce
+   y elegí **Checkout Pro**.
+5. Copiá el **Access Token de prueba** desde Credenciales de prueba. Nunca lo
+   pongas en `index.html`, `script.js` ni en Git.
 
-Instalación y prueba local:
+## 2. Configurar el proyecto
 
-1. Copia las credenciales:
-
-```bash
-cp .env.example .env
-# Edita .env y pega tu MP_ACCESS_TOKEN (modo sandbox recomendado para pruebas)
-```
-
-2. Instala dependencias e inicia la app:
-
-```bash
+```powershell
+Copy-Item .env.example .env
 npm install
 npm start
 ```
 
-3. Abre `http://localhost:3000` y pulsa "QUIERO MI RECETARIO" para probar el flujo.
+Editá `.env` y completá al menos:
 
-Notas sobre Mercado Pago y pruebas:
+- `MP_ACCESS_TOKEN`: token de prueba de la aplicación.
+- `APP_BASE_URL`: URL HTTPS pública del sitio o del túnel local.
+- `PRODUCT_PRICE` y `PRODUCT_CURRENCY`: deben coincidir con el precio visible.
+  La cuenta argentina de Mercado Pago cobra normalmente en `ARS`; confirmá la
+  moneda habilitada para tu cuenta antes de conservar el precio en `USD`.
+- SMTP y `SELLER_EMAIL` para entregar el PDF por correo.
+- `LINK_EXPIRATION_DAYS=30` para la vigencia del enlace.
+- `DOWNLOAD_TOKEN_SECRET`: secreto largo y aleatorio independiente de las
+  credenciales de Mercado Pago (obligatorio en producción).
 
-- Usa tu Access Token de pruebas (sandbox) desde tu cuenta de Mercado Pago.
-- Mercado Pago proporciona `sandbox_init_point` en la respuesta; el frontend redirige a ese URL si está disponible.
-- Para pruebas con tarjeta usa los números de tarjeta de prueba que Mercado Pago documenta en su panel de desarrollador.
+Guardá el archivo a entregar como `digital/recetario.pdf`. Esa carpeta no es
+pública: el servidor solo entrega el archivo mediante un enlace firmado que
+vence. La firma permite validar el enlace después de reiniciar el servidor sin
+guardar el token en memoria.
 
-Webhooks y entrega automática del PDF
+## 3. Configurar el webhook
 
-- El proyecto ahora incluye un endpoint `/webhook` que procesa notificaciones de Mercado Pago.
-- Al confirmarse un pago (`status === 'approved'`) el servidor intentará enviar por email el PDF configurado en `PDF_PATH` al comprador y notificará por email al vendedor (`SELLER_EMAIL`).
+En la aplicación, abrí **Webhooks > Configurar notificaciones**:
 
-Configuración adicional necesaria:
+- URL de pruebas: `https://TU_URL/api/webhooks/mercadopago`
+- Evento: **Pagos**
+- Copiá la clave secreta generada a `MP_WEBHOOK_SECRET`.
 
-1. Configurar SMTP en tu `.env` (ejemplo en `.env.example`). Puedes usar SendGrid SMTP o cualquier proveedor SMTP.
-2. En Mercado Pago (tu cuenta de desarrollador) registrá la URL de webhook apuntando a `https://TU_DOMINIO/webhook`. Para pruebas locales usá `ngrok` y poné la URL pública en el panel de Mercado Pago.
+En desarrollo, `APP_BASE_URL` puede ser una URL HTTPS de ngrok o Cloudflare
+Tunnel. Mercado Pago debe poder acceder a esa URL desde Internet.
 
-Prueba rápida con ngrok (local):
+## 4. Probar
 
-```bash
-# instala ngrok y exponé tu servidor
-ngrok http 3000
-# copia la URL https que te devuelva ngrok, por ejemplo https://abc123.ngrok.io
-# en Mercado Pago -> Webhooks o Notificaciones -> agrega: https://abc123.ngrok.io/webhook
+1. Usá credenciales y usuarios/tarjetas de prueba de Mercado Pago.
+2. Pulsá **QUIERO MI RECETARIO**.
+3. Aprobá el pago de prueba.
+4. Verificá el webhook, el correo y el enlace de descarga.
+5. Probá también un pago rechazado y uno pendiente: ninguno debe entregar el PDF.
+
+El precio se toma del servidor, no del navegador. Después del webhook, el
+servidor consulta el pago directamente a Mercado Pago y valida estado, monto,
+moneda y producto antes de generar el enlace.
+
+## 5. Salir a producción
+
+- Publicá el sitio con HTTPS.
+- Usá una base de datos para el historial de pagos y la idempotencia permanente
+  de los webhooks. Los enlaces de descarga ya son firmados y no dependen de la
+  memoria del proceso.
+- Configurá la URL productiva del webhook y su clave secreta.
+- Activá las credenciales productivas y cambiá `MP_ACCESS_TOKEN`.
+- Definí `MP_ENVIRONMENT=production` y `NODE_ENV=production`.
+- Ejecutá una compra real de monto bajo y comprobá la entrega completa.
+
+No uses la página `gracias.html` ni los parámetros de retorno como prueba de
+pago. La única confirmación válida es el pago `approved` consultado desde el
+backend después de un webhook auténtico.
+
+## 6. Desplegar en Cloudflare Workers
+
+La versión de Cloudflare sirve el frontend con Workers Static Assets, ejecuta
+la API en `worker.js`, guarda el PDF privado en R2 y registra las entregas en
+D1. El servidor Express se conserva para desarrollo local.
+
+### Preparar los recursos
+
+```powershell
+npm install
+npx wrangler login
+npx wrangler r2 bucket create buenas-recetas-private
+npx wrangler d1 create buenas-recetas
 ```
 
-Notas de seguridad y producción
+Copiá el `database_id` devuelto por el último comando al binding `DB` de
+`wrangler.jsonc`. Después aplicá el esquema y cargá el PDF privado:
 
-- En producción, guardá las ventas procesadas en una base de datos para evitar duplicados y auditar entregas.
-- No uses credenciales de producción en tu entorno de pruebas.
-- Recomendado: proteger el endpoint `/webhook` verificando firmas o restringiendo por IP si Mercado Pago provee esa info.
-
-Entrega segura del PDF (enlaces expirable localmente)
-
-- En lugar de adjuntar el PDF, el servidor genera un enlace expirable (por defecto 24 horas) que permite descargar el archivo de forma segura. Esto evita adjuntos pesados y mejora control sobre expiración.
-- Parámetros útiles en `.env`:
-  - `APP_BASE_URL`: URL pública base para construir enlaces (ej. https://mi-dominio.com). Si no está definida se intenta derivar del header `Host`.
-  - `LINK_EXPIRATION_MINUTES`: duración en minutos del enlace.
-
-Flujo de entrega con enlace expirable:
-
-1. Pago aprobado → webhook recibe notificación.
-2. Servidor crea un token expirable y lo asocia al archivo PDF.
-3. Servidor envía al comprador un correo con el enlace `https://.../download/<token>` y notifica al vendedor.
-4. El enlace expira tras `LINK_EXPIRATION_MINUTES` y puede ser invalidado tras su uso (opcional).
-
-Pruebas locales con PDF
-
-- Crea la carpeta `digital` en el proyecto y coloca tu PDF con el nombre `recetario.pdf` o ajustá `PDF_PATH` en `.env`.
-- Ejemplo:
-
-```bash
-mkdir digital
-# copia tu archivo recetario.pdf dentro de digital/
+```powershell
+npx wrangler d1 migrations apply buenas-recetas --remote
+npx wrangler r2 object put buenas-recetas-private/recetario.pdf --file digital/recetario.pdf --content-type application/pdf --remote
 ```
 
-Recomendaciones de solución de pagos (breve):
+### Configurar secretos
 
-- Checkout Pro (hosted): ideal si querés la integración más simple y cumplir con PCI sin manejar datos de tarjetas.
-- Checkout API + SDK (custom): si necesitás experiencia de compra totalmente integrada en tu sitio, pero requiere más trabajo y seguridad.
-- Suscripciones: si en el futuro ofrece suscripciones o acceso recurrente, mirar Mercado Pago Subscriptions.
+Los secretos no se guardan en Git. Configuralos en Cloudflare o con:
 
-Si querés, puedo:
+```powershell
+npx wrangler secret put MP_ACCESS_TOKEN
+npx wrangler secret put MP_WEBHOOK_SECRET
+npx wrangler secret put DOWNLOAD_TOKEN_SECRET
+npx wrangler secret put RESEND_API_KEY
+npx wrangler secret put SELLER_EMAIL
+npx wrangler secret put SUPPORT_EMAIL
+```
 
-- Configurar webhooks para confirmar pagos automáticamente y enviar el PDF por correo.
-- Integrar un envío automático del PDF (por ejemplo, usando SendGrid o similar) cuando el pago esté aprobado.
+Para probar localmente, copiá `.dev.vars.example` como `.dev.vars` y completá
+sus valores. `.dev.vars` está excluido de Git.
 
-# recetas-faciles
+### Compilar y probar
+
+```powershell
+npm run build
+npm run cf:dev
+```
+
+Para publicar manualmente:
+
+```powershell
+npm run cf:deploy
+```
+
+### Conectar GitHub
+
+En Cloudflare abrí **Workers & Pages > Create application > Import a
+repository**, autorizá tu cuenta de GitHub y elegí el repositorio
+`MPCarranza/recetas-faciles`. El nombre del Worker debe ser
+`buenas-recetas`, igual al campo `name` de `wrangler.jsonc`.
+
+Usá estos comandos de compilación y despliegue:
+
+- Build command: `npm run build`
+- Deploy command: `npx wrangler deploy`
+
+Agregá en **Settings > Variables and Secrets** los mismos secretos indicados
+arriba. Finalmente conectá `buenasrecetas.com.ar` como dominio personalizado
+del Worker y actualizá `APP_BASE_URL` con esa URL.

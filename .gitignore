@@ -1,0 +1,7 @@
+node_modules/
+.env
+npm-debug.log*
+digital/*.pdf
+dist/
+.wrangler/
+.dev.vars

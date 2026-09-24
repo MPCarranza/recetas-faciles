@@ -1,347 +1,451 @@
 require("dotenv").config();
-const express = require("express");
-const mercadopago = require("mercadopago");
-const nodemailer = require("nodemailer");
+
+const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
-const crypto = require("crypto");
+const express = require("express");
+const nodemailer = require("nodemailer");
+const { MercadoPagoConfig, Payment, Preference } = require("mercadopago");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT || 3000);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname)));
+app.disable("x-powered-by");
+app.use(express.json({ limit: "100kb" }));
+app.use(express.urlencoded({ extended: false, limit: "100kb" }));
+app.use(
+  "/assets",
+  express.static(path.join(__dirname, "assets"), { index: false }),
+);
+app.get(["/", "/index.html"], (_req, res) =>
+  res.sendFile(path.join(__dirname, "index.html")),
+);
+app.get("/gracias.html", (_req, res) =>
+  res.sendFile(path.join(__dirname, "gracias.html")),
+);
+app.get(["/styles.css", "/script.js"], (req, res) =>
+  res.sendFile(path.join(__dirname, path.basename(req.path))),
+);
 
-// Configure Mercado Pago SDK
-if (process.env.MP_ACCESS_TOKEN) {
-  try {
-    if (
-      mercadopago.configurations &&
-      mercadopago.configurations.setAccessToken
-    ) {
-      mercadopago.configurations.setAccessToken(process.env.MP_ACCESS_TOKEN);
-    } else if (typeof mercadopago.configure === "function") {
-      mercadopago.configure({ access_token: process.env.MP_ACCESS_TOKEN });
-    }
-  } catch (err) {
-    console.warn(
-      "No se pudo configurar el SDK de Mercado Pago automáticamente:",
-      err.message || err,
-    );
-  }
-} else {
-  console.warn(
-    "Atención: no se encontró la variable de entorno MP_ACCESS_TOKEN. Coloca tus credenciales en .env o en el entorno.",
-  );
+const accessToken = process.env.MP_ACCESS_TOKEN;
+const mpClient = accessToken
+  ? new MercadoPagoConfig({ accessToken, options: { timeout: 5000 } })
+  : null;
+const preferenceClient = mpClient ? new Preference(mpClient) : null;
+const paymentClient = mpClient ? new Payment(mpClient) : null;
+
+const product = Object.freeze({
+  id: process.env.PRODUCT_ID || "air-fryer-365",
+  title: process.env.PRODUCT_TITLE || "Air Fryer 365 Recetas",
+  description:
+    process.env.PRODUCT_DESCRIPTION || "Recetario digital en formato PDF",
+  price: Number(process.env.PRODUCT_PRICE || 17999),
+  currency: process.env.PRODUCT_CURRENCY || "ARS",
+});
+
+if (!accessToken) {
+  console.warn("Falta MP_ACCESS_TOKEN: el checkout no podrá crear preferencias.");
+}
+if (!Number.isFinite(product.price) || product.price <= 0) {
+  throw new Error("PRODUCT_PRICE debe ser un número mayor que cero.");
 }
 
-// Configure email transporter (nodemailer)
 let transporter = null;
-if (process.env.SMTP_HOST && process.env.SMTP_USER) {
+if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
   transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT || "587", 10),
-    secure:
-      process.env.SMTP_SECURE === "true" || process.env.SMTP_SECURE === "1",
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
+    port: Number(process.env.SMTP_PORT || 587),
+    secure: process.env.SMTP_SECURE === "true",
+    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
   });
 } else {
-  console.warn(
-    "SMTP no configurado. No se podrán enviar correos. Configurá SMTP_HOST, SMTP_USER y SMTP_PASS en .env",
+  console.warn("SMTP no configurado: no se enviarán enlaces de descarga.");
+}
+
+// Evita procesar dos veces el mismo webhook mientras esta instancia está activa.
+const processedPayments = new Map();
+const linkExpirationDays = Number(process.env.LINK_EXPIRATION_DAYS || 30);
+if (!Number.isFinite(linkExpirationDays) || linkExpirationDays <= 0) {
+  throw new Error("LINK_EXPIRATION_DAYS debe ser un número mayor que cero.");
+}
+const downloadTokenSecret = process.env.DOWNLOAD_TOKEN_SECRET || accessToken;
+if (process.env.NODE_ENV === "production" && !process.env.DOWNLOAD_TOKEN_SECRET) {
+  throw new Error("Falta DOWNLOAD_TOKEN_SECRET en producción.");
+}
+
+function publicUrl(relativePath) {
+  const baseUrl = process.env.APP_BASE_URL;
+  if (!baseUrl) return null;
+  return new URL(relativePath, `${baseUrl.replace(/\/$/, "")}/`).toString();
+}
+
+function paymentIdFrom(req) {
+  return String(
+    req.query["data.id"] || req.body?.data?.id || req.body?.id || "",
+  ).trim();
+}
+
+function productPdfPath() {
+  const relativePdfPath = process.env.PDF_PATH || "digital/recetario.pdf";
+  const pdfPath = path.resolve(__dirname, relativePdfPath);
+  const allowedRoot = path.resolve(__dirname, "digital") + path.sep;
+  if (!pdfPath.startsWith(allowedRoot) || !fs.existsSync(pdfPath)) {
+    throw new Error("PDF_PATH debe apuntar a un archivo dentro de digital/.");
+  }
+  return pdfPath;
+}
+
+function createDownloadToken(payment) {
+  if (!downloadTokenSecret) {
+    throw new Error("Falta DOWNLOAD_TOKEN_SECRET o MP_ACCESS_TOKEN.");
+  }
+
+  const approvedAt = Date.parse(payment.date_approved);
+  const issuedAt = Number.isFinite(approvedAt) ? approvedAt : Date.now();
+  const payload = Buffer.from(
+    JSON.stringify({
+      version: 1,
+      paymentId: String(payment.id),
+      productId: product.id,
+      expiresAt: issuedAt + linkExpirationDays * 24 * 60 * 60_000,
+    }),
+  ).toString("base64url");
+  const signature = crypto
+    .createHmac("sha256", downloadTokenSecret)
+    .update(payload)
+    .digest("base64url");
+  return `${payload}.${signature}`;
+}
+
+function verifyDownloadToken(token) {
+  if (!downloadTokenSecret) return { valid: false };
+
+  try {
+    const parts = String(token).split(".");
+    if (parts.length !== 2) return { valid: false };
+    const [payload, suppliedSignature] = parts;
+    const expectedSignature = crypto
+      .createHmac("sha256", downloadTokenSecret)
+      .update(payload)
+      .digest();
+    const suppliedBuffer = Buffer.from(suppliedSignature, "base64url");
+    if (
+      suppliedBuffer.length !== expectedSignature.length ||
+      !crypto.timingSafeEqual(suppliedBuffer, expectedSignature)
+    ) {
+      return { valid: false };
+    }
+
+    const data = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+    if (
+      data.version !== 1 ||
+      data.productId !== product.id ||
+      typeof data.paymentId !== "string" ||
+      !Number.isFinite(data.expiresAt)
+    ) {
+      return { valid: false };
+    }
+    if (data.expiresAt <= Date.now()) return { valid: false, expired: true };
+    return { valid: true, data };
+  } catch {
+    return { valid: false };
+  }
+}
+
+function isValidWebhookSignature(req, dataId) {
+  const secret = process.env.MP_WEBHOOK_SECRET;
+  if (!secret) return process.env.NODE_ENV !== "production";
+
+  const signature = String(req.get("x-signature") || "");
+  const requestId = String(req.get("x-request-id") || "");
+  const parts = Object.fromEntries(
+    signature.split(",").map((part) => {
+      const [key, ...value] = part.trim().split("=");
+      return [key, value.join("=")];
+    }),
+  );
+  if (!parts.ts || !parts.v1 || !requestId || !dataId) return false;
+
+  const manifest = `id:${dataId.toLowerCase()};request-id:${requestId};ts:${parts.ts};`;
+  const expected = crypto
+    .createHmac("sha256", secret)
+    .update(manifest)
+    .digest("hex");
+  const suppliedBuffer = Buffer.from(parts.v1, "utf8");
+  const expectedBuffer = Buffer.from(expected, "utf8");
+  return (
+    suppliedBuffer.length === expectedBuffer.length &&
+    crypto.timingSafeEqual(suppliedBuffer, expectedBuffer)
   );
 }
 
-// Keep track of processed payments to avoid duplicate emails (in-memory, replace with DB in prod)
-const processedPayments = new Set();
-// In-memory store for download tokens: token -> { paymentId, expiresAt, file }
-const downloadTokens = new Map();
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
 
-const LINK_EXPIRATION_MINUTES = parseInt(
-  process.env.LINK_EXPIRATION_MINUTES || "1440",
-  10,
-);
+function formatCurrency(amount, currency) {
+  return new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
 
-// Periodic cleanup of expired tokens
-setInterval(
-  () => {
-    const now = Date.now();
-    for (const [token, meta] of downloadTokens.entries()) {
-      if (meta.expiresAt <= now) downloadTokens.delete(token);
-    }
-  },
-  1000 * 60 * 10,
-);
+function paymentMethodLabel(payment) {
+  const labels = {
+    account_money: "Dinero disponible en Mercado Pago",
+    credit_card: "Tarjeta de crédito",
+    debit_card: "Tarjeta de débito",
+    prepaid_card: "Tarjeta prepaga",
+    bank_transfer: "Transferencia bancaria",
+    ticket: "Pago en efectivo",
+  };
+  return labels[payment.payment_type_id] || payment.payment_method_id || "Mercado Pago";
+}
 
-// Endpoint to create a Mercado Pago preference
-app.post("/create_preference", async (req, res) => {
+function purchaseEmailHtml(payment, downloadUrl, payerName) {
+  const safeName = escapeHtml(payerName || "");
+  const heading = safeName
+    ? `${safeName}, tu compra se realizó con éxito.`
+    : "¡Tu compra se realizó con éxito!";
+  const safeTitle = escapeHtml(product.title);
+  const safePaymentId = escapeHtml(payment.id);
+  const safeDownloadUrl = escapeHtml(downloadUrl);
+  const amount = escapeHtml(
+    formatCurrency(payment.transaction_amount, payment.currency_id),
+  );
+  const paymentMethod = escapeHtml(paymentMethodLabel(payment));
+  const approvedAt = escapeHtml(
+    new Intl.DateTimeFormat("es-AR", {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: "America/Argentina/Buenos_Aires",
+    }).format(new Date(payment.date_approved || Date.now())),
+  );
+
+  return `<!doctype html>
+<html lang="es">
+  <body style="margin:0;padding:0;background:#f4f4f1;font-family:Arial,Helvetica,sans-serif;color:#202020;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f4f1;padding:24px 12px;">
+      <tr><td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;">
+          <tr><td style="background:#00c76f;padding:34px 30px;border-radius:18px 18px 0 0;">
+            <div style="font-size:13px;font-weight:700;letter-spacing:1.8px;color:#073b26;margin-bottom:16px;">AIR FRYER 365</div>
+            <div style="font-size:27px;line-height:1.25;font-weight:800;color:#ffffff;">${heading}</div>
+            <div style="margin-top:10px;font-size:15px;line-height:1.5;color:#073b26;">Tu recetario digital ya está listo para descargar.</div>
+          </td></tr>
+          <tr><td style="background:#ffffff;padding:34px 30px;border-radius:0 0 18px 18px;">
+            <p style="margin:0 0 22px;font-size:16px;line-height:1.6;color:#4b4b4b;">Gracias por elegir recetas simples, ricas y pensadas para todos los días.</p>
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center" style="padding:4px 0 26px;">
+              <a href="${safeDownloadUrl}" style="display:inline-block;background:#1d1d1d;color:#ffffff;text-decoration:none;font-size:16px;font-weight:700;padding:15px 28px;border-radius:999px;">Descargar mi recetario</a>
+            </td></tr></table>
+            <p style="margin:0;font-size:13px;line-height:1.5;color:#777777;text-align:center;">Este enlace es personal y vence en ${linkExpirationDays} días.</p>
+          </td></tr>
+          <tr><td height="18"></td></tr>
+          <tr><td style="background:#ffffff;padding:30px;border-radius:18px;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+              <tr>
+                <td style="font-size:19px;font-weight:800;padding-bottom:22px;">Resumen de compra</td>
+                <td align="right" style="font-size:13px;font-weight:700;padding-bottom:22px;color:#666666;">Operación #${safePaymentId}</td>
+              </tr>
+              <tr>
+                <td style="font-size:14px;padding:13px 0;border-bottom:1px solid #e8e8e8;">${safeTitle}</td>
+                <td align="right" style="font-size:14px;font-weight:700;padding:13px 0;border-bottom:1px solid #e8e8e8;">${amount}</td>
+              </tr>
+              <tr>
+                <td style="font-size:14px;font-weight:800;padding:17px 0;">Total</td>
+                <td align="right" style="font-size:18px;font-weight:800;padding:17px 0;">${amount}</td>
+              </tr>
+            </table>
+            <div style="background:#f6f6f3;border-radius:12px;padding:16px 18px;font-size:13px;line-height:1.7;color:#555555;">
+              <strong>Pago:</strong> ${paymentMethod}<br>
+              <strong>Fecha:</strong> ${approvedAt}<br>
+              <strong>Estado:</strong> Aprobado
+            </div>
+          </td></tr>
+          <tr><td align="center" style="padding:24px 20px 6px;font-size:12px;line-height:1.6;color:#777777;">
+            Recibiste este correo porque realizaste una compra en Air Fryer 365.<br>
+            Si necesitás ayuda, respondé directamente a este mensaje.
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </body>
+</html>`;
+}
+
+async function sendPurchaseEmails(payment, downloadUrl) {
+  const payerEmail = payment.payer?.email;
+  const sandboxRecipient =
+    process.env.MP_ENVIRONMENT !== "production"
+      ? process.env.SELLER_EMAIL
+      : null;
+  const deliveryEmail = sandboxRecipient || payerEmail;
+  if (!transporter || !deliveryEmail) return;
+
+  const payerName = [payment.payer?.first_name, payment.payer?.last_name]
+    .filter(Boolean)
+    .join(" ");
+  const greeting = payerName ? `, ${payerName}` : "";
+
+  await transporter.sendMail({
+    from: process.env.SMTP_FROM || process.env.SMTP_USER,
+    replyTo: process.env.SUPPORT_EMAIL || process.env.SELLER_EMAIL || undefined,
+    to: deliveryEmail,
+    subject: `Tu compra fue aprobada — ${product.title}`,
+    text: `¡Gracias por tu compra${greeting}!\n\nDescargá tu recetario: ${downloadUrl}\n\nEl enlace vence en ${linkExpirationDays} días.`,
+    html: purchaseEmailHtml(payment, downloadUrl, payerName),
+  });
+
+  if (process.env.SELLER_EMAIL) {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      to: process.env.SELLER_EMAIL,
+      subject: `Venta confirmada — ${payment.id}`,
+      text: `Pago ${payment.id} aprobado por ${payment.transaction_amount} ${payment.currency_id}. Comprador: ${payerEmail}.`,
+    });
+  }
+}
+
+app.get("/preview-email", (_req, res) => {
+  if (process.env.MP_ENVIRONMENT === "production") return res.sendStatus(404);
+
+  const samplePayment = {
+    id: "179681082873",
+    transaction_amount: product.price,
+    currency_id: product.currency,
+    payment_type_id: "credit_card",
+    payment_method_id: "visa",
+    date_approved: new Date().toISOString(),
+  };
+  const sampleDownloadUrl = publicUrl("#descarga-de-ejemplo") || "#";
+
+  res.type("html").send(
+    purchaseEmailHtml(samplePayment, sampleDownloadUrl, "Pilar"),
+  );
+});
+
+app.get("/api/checkout/config", (_req, res) => {
+  res.json({ title: product.title, price: product.price, currency: product.currency });
+});
+
+app.post("/api/checkout", async (_req, res) => {
+  if (!preferenceClient) {
+    return res.status(503).json({ error: "Mercado Pago no está configurado." });
+  }
+
   try {
-    const body = req.body || {};
-    const items = body.items || [];
+    const checkoutReference = crypto.randomUUID();
+    const successUrl = publicUrl("gracias.html");
+    const failureUrl = publicUrl("?checkout=error");
+    const pendingUrl = publicUrl("?checkout=pending");
+    const notificationUrl = publicUrl("api/webhooks/mercadopago");
 
-    if (!Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ error: "items are required" });
-    }
-
-    const preference = {
-      items,
-      back_urls: {
-        success: process.env.BACK_URL_SUCCESS || "/gracias.html",
-        failure: process.env.BACK_URL_FAILURE || "/",
-        pending: process.env.BACK_URL_PENDING || "/",
-      },
-      auto_return: "approved",
+    const body = {
+      items: [
+        {
+          id: product.id,
+          title: product.title,
+          description: product.description,
+          quantity: 1,
+          currency_id: product.currency,
+          unit_price: product.price,
+        },
+      ],
+      external_reference: checkoutReference,
       binary_mode: false,
+      statement_descriptor: process.env.MP_STATEMENT_DESCRIPTOR || undefined,
+      ...(successUrl
+        ? {
+            back_urls: {
+              success: successUrl,
+              failure: failureUrl,
+              pending: pendingUrl,
+            },
+            auto_return: "approved",
+          }
+        : {}),
+      ...(notificationUrl ? { notification_url: notificationUrl } : {}),
     };
 
-    // You can optionally set notification_url here, but it's recommended to register webhooks in Mercado Pago dashboard
-    if (process.env.MP_NOTIFICATION_URL)
-      preference.notification_url = process.env.MP_NOTIFICATION_URL;
-
-    const response = await mercadopago.preferences.create(preference);
-    return res.json({
-      init_point: response.body.init_point,
-      sandbox_init_point: response.body.sandbox_init_point,
+    const preference = await preferenceClient.create({
+      body,
+      requestOptions: { idempotencyKey: checkoutReference },
     });
-  } catch (err) {
-    console.error("Error creating preference:", err);
-    return res.status(500).json({ error: "error creating preference" });
+    const useSandbox = process.env.MP_ENVIRONMENT !== "production";
+    const checkoutUrl =
+      (useSandbox && preference.sandbox_init_point) || preference.init_point;
+
+    if (!checkoutUrl) throw new Error("Mercado Pago no devolvió una URL de pago.");
+    return res.status(201).json({ checkoutUrl });
+  } catch (error) {
+    console.error("No se pudo crear el checkout:", error);
+    return res.status(502).json({ error: "No se pudo iniciar el pago." });
   }
 });
 
-// Helper: send buyer email with attachment
-async function sendBuyerEmail(toEmail, buyerName, attachmentPath) {
-  if (!transporter) throw new Error("No SMTP transporter configured");
-  const fileName = path.basename(attachmentPath);
-  const mailOptions = {
-    from: process.env.SMTP_FROM || process.env.SMTP_USER,
-    to: toEmail,
-    subject: "Gracias por tu compra — Air Fryer 365 Recetas",
-    text: `¡Gracias por tu compra, ${buyerName || ""}!\n\nAdjunto encontrarás el recetario en PDF. Si no lo ves en tu bandeja de entrada, revisá la carpeta de spam o promociones.\n\nDisfrutalo!`,
-    html: `<p>¡Gracias por tu compra${buyerName ? `, <strong>${buyerName}</strong>` : ""}!</p><p>Adjunto encontrarás el recetario en PDF. Si no lo ves en tu bandeja de entrada, revisá la carpeta de <em>spam</em> o <em>promociones</em>.</p><p>Disfrutalo!</p>`,
-    attachments: [{ filename: fileName, path: attachmentPath }],
-  };
+app.post("/api/webhooks/mercadopago", async (req, res) => {
+  const paymentId = paymentIdFrom(req);
+  const eventType = String(req.body?.type || req.query.type || "");
+  if (!paymentId || (eventType && eventType !== "payment")) {
+    return res.sendStatus(200);
+  }
+  if (!isValidWebhookSignature(req, paymentId)) return res.sendStatus(401);
 
-  return transporter.sendMail(mailOptions);
-}
+  if (!paymentClient) return res.sendStatus(503);
+  if (processedPayments.has(paymentId)) return res.sendStatus(200);
+  processedPayments.set(paymentId, "processing");
 
-// Helper: send notification to seller
-async function sendSellerNotification(sellerEmail, paymentInfo) {
-  if (!transporter) throw new Error("No SMTP transporter configured");
-  const mailOptions = {
-    from: process.env.SMTP_FROM || process.env.SMTP_USER,
-    to: sellerEmail,
-    subject: `Venta confirmada — ${paymentInfo.orderId || paymentInfo.paymentId || ""}`,
-    text: `Se realizó una venta.\n\nDetalle:\nID pago: ${paymentInfo.paymentId}\nEstado: ${paymentInfo.status}\nMonto: ${paymentInfo.amount}\nEmail comprador: ${paymentInfo.payerEmail || "N/A"}`,
-    html: `<p>Se realizó una venta.</p><ul><li>ID pago: ${paymentInfo.paymentId}</li><li>Estado: ${paymentInfo.status}</li><li>Monto: ${paymentInfo.amount}</li><li>Email comprador: ${paymentInfo.payerEmail || "N/A"}</li></ul>`,
-  };
-
-  return transporter.sendMail(mailOptions);
-}
-
-// Send buyer an email containing a secure expirable download link
-async function sendBuyerEmailWithLink(toEmail, buyerName, downloadUrl) {
-  if (!transporter) throw new Error("No SMTP transporter configured");
-  const mailOptions = {
-    from: process.env.SMTP_FROM || process.env.SMTP_USER,
-    to: toEmail,
-    subject: "Tu recetario — Air Fryer 365 Recetas",
-    text: `¡Gracias por tu compra${buyerName ? `, ${buyerName}` : ""}!\n\nDescargá tu recetario aquí: ${downloadUrl}\n\nSi no encontrás el correo, revisá la carpeta de spam o promociones.`,
-    html: `<p>¡Gracias por tu compra${buyerName ? `, <strong>${buyerName}</strong>` : ""}!</p><p>Descargá tu recetario haciendo <a href="${downloadUrl}">clic aquí</a>.</p><p>Si no encontrás el correo, revisá la carpeta de <em>spam</em> o <em>promociones</em>.</p>`,
-  };
-
-  return transporter.sendMail(mailOptions);
-}
-
-// Webhook endpoint to receive notifications from Mercado Pago
-// Use `express.raw` to obtain the raw body for HMAC verification when needed
-app.post("/webhook", express.raw({ type: "*/*" }), async (req, res) => {
   try {
-    const rawBody = req.body; // Buffer when using express.raw
-
-    // Optional HMAC verification if MP_WEBHOOK_KEY is configured and a signature header is present
-    const webhookKey = process.env.MP_WEBHOOK_KEY;
-    const signatureHeader =
-      req.headers["x-hub-signature-256"] ||
-      req.headers["x-hub-signature"] ||
-      req.headers["x-meli-signature"] ||
-      req.headers["x-mercadopago-signature"];
-
-    if (webhookKey && signatureHeader) {
-      try {
-        const hmac = crypto.createHmac("sha256", webhookKey);
-        hmac.update(rawBody);
-        const digestHex = hmac.digest("hex");
-        const expected1 = `sha256=${digestHex}`;
-        const expected2 = digestHex;
-
-        // Compare using timingSafeEqual when possible
-        const provided = String(signatureHeader).trim();
-        const ok = provided === expected1 || provided === expected2;
-
-        if (!ok) {
-          console.warn("Firma HMAC inválida en webhook");
-          return res.status(401).send("invalid signature");
-        }
-      } catch (err) {
-        console.error("Error verificando firma HMAC:", err);
-        return res.status(500).send("signature verification error");
-      }
-    } else if (webhookKey && !signatureHeader) {
-      console.warn(
-        "MP_WEBHOOK_KEY configurado pero no se recibió header de firma; rechazando por seguridad",
-      );
-      return res.status(400).send("missing signature header");
+    const payment = await paymentClient.get({ id: paymentId });
+    if (payment.status !== "approved") {
+      processedPayments.delete(paymentId);
+      return res.sendStatus(200);
     }
 
-    // Parse JSON body (some providers send notifications as JSON)
-    let parsed = {};
-    try {
-      parsed =
-        rawBody && rawBody.length ? JSON.parse(rawBody.toString("utf8")) : {};
-    } catch (e) {
-      parsed = {};
+    const validProduct = payment.additional_info?.items?.some(
+      (item) => item.id === product.id,
+    );
+    const validAmount =
+      Number(payment.transaction_amount) === product.price &&
+      payment.currency_id === product.currency;
+    if (!validAmount || (payment.additional_info?.items && !validProduct)) {
+      throw new Error(`El pago ${paymentId} no coincide con el producto esperado.`);
     }
 
-    // Mercado Pago may send data.id in different places or as query params
-    let dataId =
-      (parsed.data && parsed.data.id) ||
-      parsed.id ||
-      (parsed.resource && parsed.resource.id) ||
-      req.query["data.id"] ||
-      req.query.id ||
-      req.query["id"];
-
-    if (!dataId) {
-      console.warn("Webhook recibido sin data.id");
-      return res.status(400).send("no data id");
-    }
-
-    const paymentId = dataId;
-    console.log("Webhook payment id:", paymentId);
-
-    // Avoid re-processing same payment
-    if (processedPayments.has(paymentId)) {
-      return res.status(200).send("ok");
-    }
-
-    // Retrieve payment info from Mercado Pago to validate status
-    const payment = await mercadopago.payment.findById(paymentId);
-    const p = payment && payment.body ? payment.body : payment ? payment : null;
-
-    if (!p) {
-      console.warn("No se encontró información del pago", paymentId);
-      return res.status(404).send("payment not found");
-    }
-
-    const status = p.status;
-    const amount =
-      p.transaction_amount || p.transaction_amounts || p.total_paid_amount || 0;
-    const payerEmail =
-      (p.payer && (p.payer.email || p.payer.email_address)) ||
-      (p.additional_info &&
-        p.additional_info.payer &&
-        p.additional_info.payer.first_name) ||
-      null;
-    const payerName =
-      (p.payer &&
-        `${p.payer.first_name || ""} ${p.payer.last_name || ""}`.trim()) ||
-      "";
-
-    if (status === "approved") {
-      // mark processed
-      processedPayments.add(paymentId);
-
-      // Create expirable download token and send email containing the secure link
-      const pdfPath = process.env.PDF_PATH || "./digital/recetario.pdf";
-      const absolutePdf = path.isAbsolute(pdfPath)
-        ? pdfPath
-        : path.join(__dirname, pdfPath);
-
-      if (fs.existsSync(absolutePdf) && transporter) {
-        try {
-          // create token
-          const token = crypto.randomBytes(24).toString("hex");
-          const expiresAt = Date.now() + LINK_EXPIRATION_MINUTES * 60 * 1000;
-          downloadTokens.set(token, {
-            paymentId,
-            expiresAt,
-            file: absolutePdf,
-          });
-
-          const baseUrl =
-            process.env.APP_BASE_URL || `http://${req.headers.host}`;
-          const downloadUrl = `${baseUrl.replace(/\/$/, "")}/download/${token}`;
-
-          await sendBuyerEmailWithLink(
-            payerEmail || "",
-            payerName,
-            downloadUrl,
-          );
-          console.log("Email con enlace enviado al comprador:", payerEmail);
-        } catch (err) {
-          console.error("Error enviando email con enlace al comprador:", err);
-        }
-      } else {
-        console.warn(
-          "Archivo PDF no encontrado o SMTP no configurado:",
-          absolutePdf,
-        );
-      }
-
-      // Notify seller
-      const sellerEmail = process.env.SELLER_EMAIL;
-      if (sellerEmail && transporter) {
-        try {
-          await sendSellerNotification(sellerEmail, {
-            paymentId,
-            status,
-            amount,
-            payerEmail,
-          });
-          console.log("Notificación enviada al vendedor:", sellerEmail);
-        } catch (err) {
-          console.error("Error enviando notificación al vendedor:", err);
-        }
-      }
-    }
-
-    return res.status(200).send("received");
-  } catch (err) {
-    console.error("Error en webhook:", err);
-    return res.status(500).send("error");
+    productPdfPath();
+    const token = createDownloadToken(payment);
+    const downloadUrl = publicUrl(`api/downloads/${token}`);
+    if (!downloadUrl) throw new Error("Falta APP_BASE_URL.");
+    await sendPurchaseEmails(payment, downloadUrl);
+    processedPayments.set(paymentId, "completed");
+    return res.sendStatus(200);
+  } catch (error) {
+    processedPayments.delete(paymentId);
+    console.error("Error procesando el pago notificado:", error);
+    return res.sendStatus(500);
   }
 });
 
-// Endpoint to download a PDF via a secure token
-app.get("/download/:token", async (req, res) => {
+app.get("/api/downloads/:token", (req, res) => {
+  const verification = verifyDownloadToken(req.params.token);
+  if (verification.expired) return res.status(410).send("El enlace venció.");
+  if (!verification.valid) return res.status(404).send("Enlace inválido.");
+
   try {
-    const token = req.params.token;
-    const meta = downloadTokens.get(token);
-    if (!meta) return res.status(404).send("Enlace inválido o expirado");
-
-    if (meta.expiresAt <= Date.now()) {
-      downloadTokens.delete(token);
-      return res.status(410).send("Enlace expirado");
-    }
-
-    const filePath = meta.file;
-    if (!fs.existsSync(filePath))
-      return res.status(404).send("Archivo no encontrado");
-
-    // Optionally, delete token after first download to make link single-use
-    // downloadTokens.delete(token);
-
-    return res.download(filePath, path.basename(filePath));
-  } catch (err) {
-    console.error("Error en /download:", err);
-    return res.status(500).send("error");
+    const pdfPath = productPdfPath();
+    return res.download(pdfPath, path.basename(pdfPath));
+  } catch (error) {
+    console.error("No se pudo entregar el PDF:", error);
+    return res.status(500).send("No se pudo entregar el archivo.");
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Servidor disponible en http://localhost:${PORT}`);
 });

@@ -28,7 +28,7 @@
       href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet" />
 
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260924-2" />
   </head>
   <body>
     <!-- Top Announcement Bar -->
@@ -159,8 +159,8 @@
             <!-- Price & Clean Line -->
             <div class="hero-price-bar">
               <div class="price-bubble">
-                <span class="price-strikethrough">Antes $24.99 USD</span>
-                <span class="price-deal">Hoy: <strong>$9.99 USD</strong></span>
+                <span class="price-strikethrough">Antes ARS 46.000</span>
+                <span class="price-deal">Hoy: <strong>ARS 17.999</strong></span>
               </div>
               <span class="clean-payment-tag"
                 >Pago único · PDF digital · acceso inmediato</span
@@ -688,8 +688,8 @@
             </p>
 
             <div class="price-box-container">
-              <div class="price-strikethrough">Precio normal: $24.99 USD</div>
-              <div class="price-current-large">HOY: <span>$9.99 USD</span></div>
+              <div class="price-strikethrough">Precio normal: ARS 46.000</div>
+              <div class="price-current-large">HOY: <span>ARS 17.999</span></div>
             </div>
 
             <a
@@ -890,61 +890,45 @@
 
                 <div class="total-value-row">
                   <span>Precio habitual:</span>
-                  <span class="total-val-struck">$24.99 USD</span>
+                  <span class="total-val-struck">ARS 46.000</span>
                 </div>
               </div>
 
               <!-- Right: Tarjeta de Precio y Botón de Pago -->
               <div class="offer-checkout-card">
-                <div class="promo-discount-badge">PRECIO ESPECIAL</div>
-
-                <div class="checkout-price-wrap">
-                  <span class="only-today-text">PRECIO ACTUAL:</span>
-                  <div class="price-number">
-                    <span class="currency">$</span>
-                    <span class="amount">9.99</span>
-                    <span class="cents">USD</span>
-                  </div>
-                  <span class="one-time-payment"
-                    >Pago único · Sin suscripciones</span
-                  >
+                <div class="checkout-product-cover">
+                  <img
+                    src="assets/air-fryer-365-cover.png"
+                    alt="Portada Air Fryer 365 Recetas" />
                 </div>
 
-                <a
-                  href="#"
-                  class="btn btn-primary btn-xl btn-block btn-shine btn-action-pulse"
-                  id="btn-final-checkout"
-                  data-item-title="Air Fryer 365 Recetas"
-                  data-item-price="9.99"
-                  data-item-currency="USD">
-                  <span class="btn-text">QUIERO MI RECETARIO →</span>
-                  <span class="btn-subtext">Acceso inmediato por email</span>
-                </a>
+                <div class="checkout-product-content">
+                  <span class="checkout-digital-badge">DESCARGA DIGITAL</span>
+                  <h3>Air Fryer 365 recetas saludables</h3>
+                  <p>Comé rico y saludable en pocos minutos.</p>
 
-                <div class="security-payment-info">
-                  <div class="security-row">
-                    <svg viewBox="0 0 20 20" fill="currentColor">
+                  <div class="checkout-purchase-row">
+                    <div class="checkout-prices">
+                      <strong>ARS 17.999</strong>
+                      <del>ARS 46.000</del>
+                    </div>
+                    <a
+                      href="#"
+                      class="checkout-buy-button"
+                      id="btn-final-checkout">
+                      Comprar
+                    </a>
+                  </div>
+
+                  <div class="checkout-security-note">
+                    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                       <path
                         fill-rule="evenodd"
                         d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                         clip-rule="evenodd" />
                     </svg>
-                    <span
-                      >Pago 100% Protegido con Encriptación SSL de 256
-                      bits</span
-                    >
+                    <span>Pago seguro con Mercado Pago · Acceso por email</span>
                   </div>
-                  <div class="payment-cards-icons">
-                    <span class="pay-chip">💳 Visa</span>
-                    <span class="pay-chip">💳 Mastercard</span>
-                    <span class="pay-chip">🅿️ PayPal</span>
-                    <span class="pay-chip">💳 AMEX</span>
-                    <span class="pay-chip">🍎 Apple Pay</span>
-                  </div>
-                  <p class="instant-delivery-notice">
-                    📧 Recibirás el acceso de descarga en tu correo electrónico
-                    segundos después de completar tu compra.
-                  </p>
                 </div>
               </div>
             </div>
@@ -1107,7 +1091,7 @@
       <div class="container floating-bar-content">
         <div class="float-price">
           <span class="float-tag">EBOOK DIGITAL</span>
-          <span class="float-amount">$9.99 USD</span>
+          <span class="float-amount">ARS 17.999</span>
         </div>
         <a href="#oferta" class="btn btn-primary btn-float">
           <span>Quiero las 365 recetas →</span>
@@ -1172,6 +1156,6 @@
       </div>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=20260924-2"></script>
   </body>
 </html>

@@ -1,0 +1,8 @@
+# Copiá este archivo como .dev.vars solo para probar Workers localmente.
+# Nunca subas .dev.vars a Git.
+MP_ACCESS_TOKEN=APP_USR_TOKEN_DE_PRUEBA
+MP_WEBHOOK_SECRET=CLAVE_SECRETA_DEL_WEBHOOK_DE_PRUEBA
+DOWNLOAD_TOKEN_SECRET=SECRETO_LARGO_Y_ALEATORIO
+RESEND_API_KEY=re_REEMPLAZAR
+SELLER_EMAIL=tu-correo@example.com
+SUPPORT_EMAIL=tu-correo@example.com

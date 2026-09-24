@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "buenas-recetas",
+  "main": "worker.js",
+  "compatibility_date": "2026-09-24",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/preview-email"]
+  },
+  "vars": {
+    "NODE_ENV": "development",
+    "MP_ENVIRONMENT": "sandbox",
+    "PRODUCT_ID": "air-fryer-365",
+    "PRODUCT_TITLE": "Air Fryer 365 Recetas",
+    "PRODUCT_DESCRIPTION": "Recetario digital en formato PDF",
+    "PRODUCT_PRICE": "17999",
+    "PRODUCT_CURRENCY": "ARS",
+    "LINK_EXPIRATION_DAYS": "30",
+    "PDF_OBJECT_KEY": "recetario.pdf",
+    "EMAIL_FROM": "Air Fryer 365 <onboarding@resend.dev>"
+  }
+}

@@ -1,8 +1,4 @@
-/**
- * AIR FRYER 365 RECETAS - Interactive Scripts
- * Optimized for high conversions, fast performance, and smooth mobile UX
- */
-
+/** AIR FRYER 365 RECETAS - Interactive Scripts */
 document.addEventListener("DOMContentLoaded", () => {
   initCountdown();
   initFaqAccordion();
@@ -12,120 +8,71 @@ document.addEventListener("DOMContentLoaded", () => {
   initCheckoutButtons();
 });
 
-/**
- * 6. Checkout: llama al backend para crear la preference de Mercado Pago
- */
 function initCheckoutButtons() {
   const checkoutBtn = document.getElementById("btn-final-checkout");
   if (!checkoutBtn) return;
-
-  checkoutBtn.addEventListener("click", async (e) => {
-    e.preventDefault();
-
-    const title = checkoutBtn.dataset.itemTitle || "Producto";
-    const price = parseFloat(checkoutBtn.dataset.itemPrice || "9.99");
-    const currency = checkoutBtn.dataset.itemCurrency || "USD";
-
+  checkoutBtn.addEventListener("click", async (event) => {
+    event.preventDefault();
+    if (checkoutBtn.classList.contains("is-loading")) return;
+    checkoutBtn.classList.add("is-loading");
+    checkoutBtn.setAttribute("aria-disabled", "true");
     try {
-      checkoutBtn.classList.add("is-loading");
-
-      const resp = await fetch("/create_preference", {
+      // Producto, precio y moneda se definen únicamente en el servidor.
+      const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: [
-            { title, unit_price: price, quantity: 1, currency_id: currency },
-          ],
-        }),
+        body: "{}",
       });
-
-      if (!resp.ok) throw new Error("Error creando la preferencia");
-      const data = await resp.json();
-
-      // Preferir sandbox init point si está disponible (modo de pruebas)
-      const redirectUrl = data.sandbox_init_point || data.init_point;
-      if (!redirectUrl) throw new Error("URL de pago no disponible");
-
-      window.location.href = redirectUrl;
-    } catch (err) {
-      console.error(err);
-      alert(
-        "Ocurrió un error al iniciar el pago. Por favor, recarga la página e intenta de nuevo.",
-      );
-    } finally {
+      const data = await response.json();
+      if (!response.ok || !data.checkoutUrl) {
+        throw new Error(data.error || "URL de pago no disponible.");
+      }
+      window.location.assign(data.checkoutUrl);
+    } catch (error) {
+      console.error(error);
+      alert("No pudimos iniciar el pago. Por favor, intentá nuevamente.");
       checkoutBtn.classList.remove("is-loading");
+      checkoutBtn.removeAttribute("aria-disabled");
     }
   });
 }
 
-/**
- * 1. Urgency Countdown Timer (3 hours, 42 mins cycle)
- */
 function initCountdown() {
   const hoursEl = document.getElementById("cd-hours");
   const minutesEl = document.getElementById("cd-minutes");
   const secondsEl = document.getElementById("cd-seconds");
-
   if (!hoursEl || !minutesEl || !secondsEl) return;
-
-  // Set 4 hours from now or load stored deadline
-  let countdownKey = "airfryer_cd_time";
+  const countdownKey = "airfryer_cd_time";
   let targetTime = localStorage.getItem(countdownKey);
-
-  if (!targetTime || new Date(targetTime).getTime() <= new Date().getTime()) {
-    const now = new Date();
-    now.setHours(now.getHours() + 3);
-    now.setMinutes(now.getMinutes() + 45);
-    targetTime = now.toISOString();
+  if (!targetTime || new Date(targetTime).getTime() <= Date.now()) {
+    targetTime = new Date(Date.now() + 3.75 * 60 * 60 * 1000).toISOString();
     localStorage.setItem(countdownKey, targetTime);
   }
-
   function updateTimer() {
-    const totalMs = new Date(targetTime).getTime() - new Date().getTime();
-
+    let totalMs = new Date(targetTime).getTime() - Date.now();
     if (totalMs <= 0) {
-      // Reset if expired to keep urgency active
-      const now = new Date();
-      now.setHours(now.getHours() + 2);
-      now.setMinutes(now.getMinutes() + 30);
-      targetTime = now.toISOString();
+      targetTime = new Date(Date.now() + 2.5 * 60 * 60 * 1000).toISOString();
       localStorage.setItem(countdownKey, targetTime);
-      return;
+      totalMs = new Date(targetTime).getTime() - Date.now();
     }
-
-    const hours = Math.floor((totalMs / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((totalMs / (1000 * 60)) % 60);
-    const seconds = Math.floor((totalMs / 1000) % 60);
-
-    hoursEl.textContent = String(hours).padStart(2, "0");
-    minutesEl.textContent = String(minutes).padStart(2, "0");
-    secondsEl.textContent = String(seconds).padStart(2, "0");
+    hoursEl.textContent = String(Math.floor(totalMs / 3_600_000)).padStart(2, "0");
+    minutesEl.textContent = String(Math.floor((totalMs / 60_000) % 60)).padStart(2, "0");
+    secondsEl.textContent = String(Math.floor((totalMs / 1000) % 60)).padStart(2, "0");
   }
-
   updateTimer();
   setInterval(updateTimer, 1000);
 }
 
-/**
- * 2. Interactive FAQ Accordion
- */
 function initFaqAccordion() {
-  const accordionHeaders = document.querySelectorAll(".accordion-header");
-
-  accordionHeaders.forEach((header) => {
+  document.querySelectorAll(".accordion-header").forEach((header) => {
     header.addEventListener("click", () => {
       const item = header.parentElement;
-      const isActive = item.classList.contains("active");
-
-      // Close all items
+      const shouldOpen = !item.classList.contains("active");
       document.querySelectorAll(".accordion-item").forEach((otherItem) => {
         otherItem.classList.remove("active");
-        const otherBtn = otherItem.querySelector(".accordion-header");
-        if (otherBtn) otherBtn.setAttribute("aria-expanded", "false");
+        otherItem.querySelector(".accordion-header")?.setAttribute("aria-expanded", "false");
       });
-
-      // Toggle clicked item
-      if (!isActive) {
+      if (shouldOpen) {
         item.classList.add("active");
         header.setAttribute("aria-expanded", "true");
       }
@@ -133,72 +80,41 @@ function initFaqAccordion() {
   });
 }
 
-/**
- * 3. Sticky Bottom Floating Bar (Appears when scrolled past hero)
- */
 function initFloatingBar() {
   const floatingBar = document.getElementById("floating-bar");
   const heroSection = document.getElementById("hero");
   const finalOfferSection = document.getElementById("oferta");
-
   if (!floatingBar || !heroSection) return;
-
   function checkScroll() {
-    const heroBottom = heroSection.getBoundingClientRect().bottom;
-    let inFinalOffer = false;
-
-    if (finalOfferSection) {
-      const offerTop = finalOfferSection.getBoundingClientRect().top;
-      const offerBottom = finalOfferSection.getBoundingClientRect().bottom;
-      if (offerTop <= window.innerHeight && offerBottom >= 0) {
-        inFinalOffer = true;
-      }
-    }
-
-    // Show floating bar only after scrolling past hero and when not already on final offer card
-    if (heroBottom < 0 && !inFinalOffer) {
-      floatingBar.classList.add("is-visible");
-    } else {
-      floatingBar.classList.remove("is-visible");
-    }
+    const offerRect = finalOfferSection?.getBoundingClientRect();
+    const inFinalOffer =
+      offerRect && offerRect.top <= window.innerHeight && offerRect.bottom >= 0;
+    floatingBar.classList.toggle(
+      "is-visible",
+      heroSection.getBoundingClientRect().bottom < 0 && !inFinalOffer,
+    );
   }
-
   window.addEventListener("scroll", checkScroll, { passive: true });
   checkScroll();
 }
 
-/**
- * 4. Current Year in Footer
- */
 function initDynamicYear() {
   const yearEl = document.getElementById("current-year");
-  if (yearEl) {
-    yearEl.textContent = new Date().getFullYear();
-  }
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
 }
 
-/**
- * 5. Smooth Scroll for in-page anchors
- */
 function initSmoothScroll() {
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-    anchor.addEventListener("click", function (e) {
+    anchor.addEventListener("click", function (event) {
       const targetId = this.getAttribute("href");
       if (targetId === "#") return;
-
       const targetEl = document.querySelector(targetId);
-      if (targetEl) {
-        e.preventDefault();
-        const headerOffset = 70;
-        const elementPosition = targetEl.getBoundingClientRect().top;
-        const offsetPosition =
-          elementPosition + window.pageYOffset - headerOffset;
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: "smooth",
-        });
-      }
+      if (!targetEl) return;
+      event.preventDefault();
+      window.scrollTo({
+        top: targetEl.getBoundingClientRect().top + window.scrollY - 70,
+        behavior: "smooth",
+      });
     });
   });
 }
