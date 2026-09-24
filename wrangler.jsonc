@@ -18,6 +18,13 @@
     "binding": "ASSETS",
     "run_worker_first": ["/api/*", "/preview-email"]
   },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "buenas-recetas",
+      "database_id": "8c1f2c8f-bbc9-41e5-9924-b3eaa6735e02"
+    }
+  ],
   "vars": {
     "NODE_ENV": "development",
     "MP_ENVIRONMENT": "sandbox",
