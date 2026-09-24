@@ -526,6 +526,10 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     try {
+      if (url.hostname === "www.buenasrecetas.com.ar") {
+        url.hostname = "buenasrecetas.com.ar";
+        return Response.redirect(url.toString(), 301);
+      }
       if (request.method === "GET" && url.pathname === "/api/checkout/config") {
         const product = productFromEnv(env);
         return json({
