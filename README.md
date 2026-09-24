@@ -136,7 +136,7 @@ npm run cf:deploy
 En Cloudflare abrí **Workers & Pages > Create application > Import a
 repository**, autorizá tu cuenta de GitHub y elegí el repositorio
 `MPCarranza/recetas-faciles`. El nombre del Worker debe ser
-`buenas-recetas`, igual al campo `name` de `wrangler.jsonc`.
+`recetas-faciles`, igual al campo `name` de `wrangler.jsonc`.
 
 Usá estos comandos de compilación y despliegue:
 
