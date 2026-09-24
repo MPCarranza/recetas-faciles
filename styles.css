@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AIR FRYER 50 RECETAS - DESIGN SYSTEM & STYLESHEET
+   AIR FRYER 365 RECETAS - DESIGN SYSTEM & STYLESHEET
    Colores & Estilo de la portada:
    Verde (#00B050 / #05A850), Amarillo (#FED500 / #FFCC00), Blanco y Carbón
    Estructura editorial inspirada en la referencia de alta conversión
@@ -1892,23 +1892,30 @@ h1, h2, h3, h4, h5, h6 {
    ========================================================================== */
 .final-offer-section {
   padding: 5.5rem 0;
-  background: radial-gradient(circle at 50% 50%, #17221C 0%, #0E1411 100%);
+  background: linear-gradient(135deg, #07381E 0%, #032112 100%);
+  position: relative;
+  overflow: hidden;
   color: var(--white);
 }
 
+.offer-container {
+  position: relative;
+  z-index: 2;
+}
+
 .offer-box {
-  background-color: var(--dark-card);
-  border: 2px solid var(--dark-border);
+  background-color: var(--white);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .offer-box-header {
-  background: linear-gradient(135deg, #0C361E 0%, #154D2B 100%);
-  padding: 2.5rem 2rem;
+  background: linear-gradient(180deg, #F3F9F5 0%, #FFFFFF 100%);
+  padding: 2.75rem 2rem 2.25rem;
   text-align: center;
-  border-bottom: 1px solid var(--dark-border);
+  border-bottom: 1px solid var(--border-light);
   position: relative;
 }
 
@@ -1920,20 +1927,26 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 800;
   font-size: 0.8rem;
   letter-spacing: 0.08em;
-  padding: 0.35rem 1rem;
+  padding: 0.35rem 1.1rem;
   border-radius: var(--radius-full);
   margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(254, 213, 0, 0.25);
 }
 
 .offer-main-title {
   font-size: clamp(1.8rem, 3.5vw, 2.5rem);
-  color: var(--white);
+  color: var(--text-main);
   margin-bottom: 0.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .offer-main-sub {
   font-size: 1.05rem;
-  color: #A7F3D0;
+  color: var(--text-muted);
+  max-width: 720px;
+  margin: 0 auto;
+  line-height: 1.55;
 }
 
 .offer-box-body {
@@ -1941,12 +1954,14 @@ h1, h2, h3, h4, h5, h6 {
   grid-template-columns: 1.2fr 0.8fr;
   gap: 2.5rem;
   padding: 3rem;
+  background-color: var(--white);
 }
 
 .summary-title {
   font-size: 1.3rem;
-  color: var(--white);
+  color: var(--text-main);
   margin-bottom: 1.5rem;
+  font-weight: 800;
 }
 
 .summary-item {
@@ -1954,11 +1969,11 @@ h1, h2, h3, h4, h5, h6 {
   align-items: flex-start;
   gap: 1rem;
   padding: 1rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #EAEFEA;
 }
 
 .check-icon {
-  background-color: rgba(5, 168, 80, 0.2);
+  background-color: #E8F7EE;
   color: var(--green-primary);
   width: 26px;
   height: 26px;
@@ -1968,6 +1983,7 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: center;
   font-weight: 900;
   flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(5, 168, 80, 0.15);
 }
 
 .item-desc {
@@ -1976,30 +1992,36 @@ h1, h2, h3, h4, h5, h6 {
 
 .item-desc strong {
   display: block;
-  font-size: 0.95rem;
-  color: var(--white);
+  font-size: 0.98rem;
+  color: var(--text-main);
+  font-weight: 700;
 }
 
 .item-desc span {
-  font-size: 0.8rem;
-  color: #94A3B8;
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
 .item-val {
   font-weight: 700;
   font-size: 0.9rem;
-  color: #64748B;
+  color: #94A3B8;
   text-decoration: line-through;
 }
 
 .item-free {
-  color: var(--yellow-primary);
+  color: var(--green-dark);
+  background-color: #E8F7EE;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  font-weight: 800;
   text-decoration: none;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
 }
 
 .bonus-row {
-  background-color: rgba(5, 168, 80, 0.04);
+  background-color: rgba(5, 168, 80, 0.06);
   border-radius: var(--radius-xs);
   padding: 1rem 0.5rem;
 }
@@ -2010,7 +2032,7 @@ h1, h2, h3, h4, h5, h6 {
   padding-top: 1.5rem;
   font-size: 1.1rem;
   font-weight: 700;
-  color: #94A3B8;
+  color: var(--text-muted);
 }
 
 .total-val-struck {
@@ -2021,7 +2043,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Checkout Pricing Card */
 .offer-checkout-card {
-  background-color: #121815;
+  background: linear-gradient(180deg, #0F1F17 0%, #08140E 100%);
   border: 2px solid var(--green-primary);
   border-radius: var(--radius-lg);
   padding: 2.25rem 1.75rem;
@@ -2030,7 +2052,7 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   text-align: center;
   position: relative;
-  box-shadow: 0 0 40px rgba(5, 168, 80, 0.15);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18), 0 0 30px rgba(5, 168, 80, 0.15);
 }
 
 .promo-discount-badge {

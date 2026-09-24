@@ -1,28 +1,75 @@
 /**
- * AIR FRYER 50 RECETAS - Interactive Scripts
+ * AIR FRYER 365 RECETAS - Interactive Scripts
  * Optimized for high conversions, fast performance, and smooth mobile UX
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   initCountdown();
   initFaqAccordion();
   initFloatingBar();
   initDynamicYear();
   initSmoothScroll();
+  initCheckoutButtons();
 });
+
+/**
+ * 6. Checkout: llama al backend para crear la preference de Mercado Pago
+ */
+function initCheckoutButtons() {
+  const checkoutBtn = document.getElementById("btn-final-checkout");
+  if (!checkoutBtn) return;
+
+  checkoutBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+
+    const title = checkoutBtn.dataset.itemTitle || "Producto";
+    const price = parseFloat(checkoutBtn.dataset.itemPrice || "9.99");
+    const currency = checkoutBtn.dataset.itemCurrency || "USD";
+
+    try {
+      checkoutBtn.classList.add("is-loading");
+
+      const resp = await fetch("/create_preference", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: [
+            { title, unit_price: price, quantity: 1, currency_id: currency },
+          ],
+        }),
+      });
+
+      if (!resp.ok) throw new Error("Error creando la preferencia");
+      const data = await resp.json();
+
+      // Preferir sandbox init point si está disponible (modo de pruebas)
+      const redirectUrl = data.sandbox_init_point || data.init_point;
+      if (!redirectUrl) throw new Error("URL de pago no disponible");
+
+      window.location.href = redirectUrl;
+    } catch (err) {
+      console.error(err);
+      alert(
+        "Ocurrió un error al iniciar el pago. Por favor, recarga la página e intenta de nuevo.",
+      );
+    } finally {
+      checkoutBtn.classList.remove("is-loading");
+    }
+  });
+}
 
 /**
  * 1. Urgency Countdown Timer (3 hours, 42 mins cycle)
  */
 function initCountdown() {
-  const hoursEl = document.getElementById('cd-hours');
-  const minutesEl = document.getElementById('cd-minutes');
-  const secondsEl = document.getElementById('cd-seconds');
+  const hoursEl = document.getElementById("cd-hours");
+  const minutesEl = document.getElementById("cd-minutes");
+  const secondsEl = document.getElementById("cd-seconds");
 
   if (!hoursEl || !minutesEl || !secondsEl) return;
 
   // Set 4 hours from now or load stored deadline
-  let countdownKey = 'airfryer_cd_time';
+  let countdownKey = "airfryer_cd_time";
   let targetTime = localStorage.getItem(countdownKey);
 
   if (!targetTime || new Date(targetTime).getTime() <= new Date().getTime()) {
@@ -50,9 +97,9 @@ function initCountdown() {
     const minutes = Math.floor((totalMs / (1000 * 60)) % 60);
     const seconds = Math.floor((totalMs / 1000) % 60);
 
-    hoursEl.textContent = String(hours).padStart(2, '0');
-    minutesEl.textContent = String(minutes).padStart(2, '0');
-    secondsEl.textContent = String(seconds).padStart(2, '0');
+    hoursEl.textContent = String(hours).padStart(2, "0");
+    minutesEl.textContent = String(minutes).padStart(2, "0");
+    secondsEl.textContent = String(seconds).padStart(2, "0");
   }
 
   updateTimer();
@@ -63,24 +110,24 @@ function initCountdown() {
  * 2. Interactive FAQ Accordion
  */
 function initFaqAccordion() {
-  const accordionHeaders = document.querySelectorAll('.accordion-header');
+  const accordionHeaders = document.querySelectorAll(".accordion-header");
 
   accordionHeaders.forEach((header) => {
-    header.addEventListener('click', () => {
+    header.addEventListener("click", () => {
       const item = header.parentElement;
-      const isActive = item.classList.contains('active');
+      const isActive = item.classList.contains("active");
 
       // Close all items
-      document.querySelectorAll('.accordion-item').forEach((otherItem) => {
-        otherItem.classList.remove('active');
-        const otherBtn = otherItem.querySelector('.accordion-header');
-        if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
+      document.querySelectorAll(".accordion-item").forEach((otherItem) => {
+        otherItem.classList.remove("active");
+        const otherBtn = otherItem.querySelector(".accordion-header");
+        if (otherBtn) otherBtn.setAttribute("aria-expanded", "false");
       });
 
       // Toggle clicked item
       if (!isActive) {
-        item.classList.add('active');
-        header.setAttribute('aria-expanded', 'true');
+        item.classList.add("active");
+        header.setAttribute("aria-expanded", "true");
       }
     });
   });
@@ -90,9 +137,9 @@ function initFaqAccordion() {
  * 3. Sticky Bottom Floating Bar (Appears when scrolled past hero)
  */
 function initFloatingBar() {
-  const floatingBar = document.getElementById('floating-bar');
-  const heroSection = document.getElementById('hero');
-  const finalOfferSection = document.getElementById('oferta');
+  const floatingBar = document.getElementById("floating-bar");
+  const heroSection = document.getElementById("hero");
+  const finalOfferSection = document.getElementById("oferta");
 
   if (!floatingBar || !heroSection) return;
 
@@ -110,13 +157,13 @@ function initFloatingBar() {
 
     // Show floating bar only after scrolling past hero and when not already on final offer card
     if (heroBottom < 0 && !inFinalOffer) {
-      floatingBar.classList.add('is-visible');
+      floatingBar.classList.add("is-visible");
     } else {
-      floatingBar.classList.remove('is-visible');
+      floatingBar.classList.remove("is-visible");
     }
   }
 
-  window.addEventListener('scroll', checkScroll, { passive: true });
+  window.addEventListener("scroll", checkScroll, { passive: true });
   checkScroll();
 }
 
@@ -124,7 +171,7 @@ function initFloatingBar() {
  * 4. Current Year in Footer
  */
 function initDynamicYear() {
-  const yearEl = document.getElementById('current-year');
+  const yearEl = document.getElementById("current-year");
   if (yearEl) {
     yearEl.textContent = new Date().getFullYear();
   }
@@ -135,20 +182,21 @@ function initDynamicYear() {
  */
 function initSmoothScroll() {
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-    anchor.addEventListener('click', function (e) {
-      const targetId = this.getAttribute('href');
-      if (targetId === '#') return;
+    anchor.addEventListener("click", function (e) {
+      const targetId = this.getAttribute("href");
+      if (targetId === "#") return;
 
       const targetEl = document.querySelector(targetId);
       if (targetEl) {
         e.preventDefault();
         const headerOffset = 70;
         const elementPosition = targetEl.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        const offsetPosition =
+          elementPosition + window.pageYOffset - headerOffset;
 
         window.scrollTo({
           top: offsetPosition,
-          behavior: 'smooth',
+          behavior: "smooth",
         });
       }
     });
