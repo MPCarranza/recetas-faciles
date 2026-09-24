@@ -34,6 +34,10 @@
   "vars": {
     "NODE_ENV": "development",
     "MP_ENVIRONMENT": "sandbox",
+    "APP_BASE_URL": "https://buenasrecetas.com.ar",
+    "SELLER_EMAIL": "365recetasparavos@gmail.com",
+    "SUPPORT_EMAIL": "365recetasparavos@gmail.com",
+    "MP_STATEMENT_DESCRIPTOR": "AIRFRYER365",
     "PRODUCT_ID": "air-fryer-365",
     "PRODUCT_TITLE": "Air Fryer 365 Recetas",
     "PRODUCT_DESCRIPTION": "Recetario digital en formato PDF",
