@@ -46,13 +46,22 @@ function initSupportEmail() {
     window.setTimeout(showIntro, 150);
   }
 
-  supportLink.addEventListener("click", (event) => {
-    event.preventDefault();
+  function openModal() {
     previousFocus = document.activeElement;
     showIntro();
+    const query = new URLSearchParams(window.location.search);
+    const paymentId = query.get("payment_id");
+    if (paymentId && /^\d+$/.test(paymentId)) {
+      form.elements.paymentId.value = paymentId;
+    }
     modal.hidden = false;
     document.body.classList.add("support-modal-open");
     continueButton.focus();
+  }
+
+  supportLink.addEventListener("click", (event) => {
+    event.preventDefault();
+    openModal();
   });
 
   modal.querySelectorAll("[data-support-close]").forEach((button) => {
@@ -109,6 +118,11 @@ function initSupportEmail() {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && !modal.hidden) closeModal();
   });
+
+  const initialQuery = new URLSearchParams(window.location.search);
+  if (initialQuery.get("support") === "1") {
+    window.setTimeout(openModal, 100);
+  }
 }
 
 function initCheckoutButtons() {

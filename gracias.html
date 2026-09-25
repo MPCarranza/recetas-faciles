@@ -411,7 +411,7 @@
           <div class="actions">
             <a class="button button--download" id="download-button" href="#" hidden>Descargar recetario</a>
             <a class="button" href="/">Volver a la tienda</a>
-            <a class="button button--secondary" href="mailto:365recetasparavos@gmail.com">Necesito ayuda</a>
+            <a class="button button--secondary" id="thanks-support-link" href="/?support=1">Necesito ayuda</a>
           </div>
         </div>
 
@@ -445,6 +445,13 @@
       const params = new URLSearchParams(window.location.search);
       const paymentId = params.get("payment_id");
       const externalReference = params.get("external_reference");
+      const supportLink = document.getElementById("thanks-support-link");
+      const supportParams = new URLSearchParams({ support: "1" });
+      if (paymentId && /^\d+$/.test(paymentId)) {
+        supportParams.set("payment_id", paymentId);
+      }
+      supportLink.href = `/?${supportParams.toString()}`;
+
       if (paymentId && /^\d+$/.test(paymentId)) {
         document.getElementById("payment-id").textContent = `#${paymentId}`;
         document.getElementById("order-number").style.display = "block";
