@@ -410,6 +410,46 @@ app.post("/api/checkout", async (_req, res) => {
   }
 });
 
+app.post("/api/purchases/access", async (req, res) => {
+  const paymentId = String(req.body?.paymentId || "").trim();
+  const externalReference = String(req.body?.externalReference || "").trim();
+  if (!/^\d+$/.test(paymentId) || !/^[0-9a-f-]{36}$/i.test(externalReference)) {
+    return res.status(400).json({ error: "Los datos de la compra no son válidos." });
+  }
+  if (!paymentClient) {
+    return res.status(503).json({ error: "Mercado Pago no estÃ¡ configurado." });
+  }
+
+  try {
+    const payment = await paymentClient.get({ id: paymentId });
+    if (
+      payment.status !== "approved" ||
+      String(payment.external_reference || "") !== externalReference
+    ) {
+      return res.status(403).json({ error: "No se pudo validar la compra." });
+    }
+
+    const validProduct = payment.additional_info?.items?.some(
+      (item) => item.id === product.id,
+    );
+    const validAmount =
+      Number(payment.transaction_amount) === product.price &&
+      payment.currency_id === product.currency;
+    if (!validAmount || (payment.additional_info?.items && !validProduct)) {
+      return res.status(403).json({ error: "La compra no corresponde a este producto." });
+    }
+
+    productPdfPath();
+    const token = createDownloadToken(payment);
+    const downloadUrl = publicUrl(`api/downloads/${token}`);
+    if (!downloadUrl) throw new Error("Falta APP_BASE_URL.");
+    return res.json({ downloadUrl });
+  } catch (error) {
+    console.error("No se pudo preparar la descarga:", error);
+    return res.status(502).json({ error: "No se pudo preparar la descarga." });
+  }
+});
+
 app.post("/api/webhooks/mercadopago", async (req, res) => {
   const paymentId = paymentIdFrom(req);
   const eventType = String(req.body?.type || req.query.type || "");

@@ -459,6 +459,47 @@ async function handleCheckout(request, env) {
   return json({ checkoutUrl }, 201);
 }
 
+async function handlePurchaseAccess(request, env) {
+  const body = await request.json().catch(() => ({}));
+  const paymentId = String(body?.paymentId || "").trim();
+  const externalReference = String(body?.externalReference || "").trim();
+  if (!/^\d+$/.test(paymentId) || !/^[0-9a-f-]{36}$/i.test(externalReference)) {
+    return json({ error: "Los datos de la compra no son válidos." }, 400);
+  }
+
+  const product = productFromEnv(env);
+  const payment = await mercadoPagoRequest(
+    env,
+    `/v1/payments/${encodeURIComponent(paymentId)}`,
+  );
+  if (
+    payment.status !== "approved" ||
+    String(payment.external_reference || "") !== externalReference
+  ) {
+    return json({ error: "No se pudo validar la compra." }, 403);
+  }
+
+  const validProduct = payment.additional_info?.items?.some(
+    (item) => item.id === product.id,
+  );
+  const validAmount =
+    Number(payment.transaction_amount) === product.price &&
+    payment.currency_id === product.currency;
+  if (!validAmount || (payment.additional_info?.items && !validProduct)) {
+    return json({ error: "La compra no corresponde a este producto." }, 403);
+  }
+
+  const expirationDays = Number(env.LINK_EXPIRATION_DAYS || 30);
+  const token = await createDownloadToken(env, payment, product, expirationDays);
+  return json({
+    downloadUrl: publicUrl(
+      request,
+      env,
+      `api/downloads/${encodeURIComponent(token)}`,
+    ),
+  });
+}
+
 async function handleWebhook(request, env) {
   const url = new URL(request.url);
   const body = await request.json().catch(() => ({}));
@@ -643,12 +684,18 @@ export default {
       if (request.method === "GET" && url.pathname === "/api/health") {
         return json({
           ok: true,
-          revision: "verified-email-domain-v1",
+          revision: "purchase-download-v1",
           webhook: await latestWebhookDiagnostic(env),
         });
       }
       if (request.method === "POST" && url.pathname === "/api/checkout") {
         return await handleCheckout(request, env);
+      }
+      if (
+        request.method === "POST" &&
+        url.pathname === "/api/purchases/access"
+      ) {
+        return await handlePurchaseAccess(request, env);
       }
       if (
         request.method === "POST" &&
