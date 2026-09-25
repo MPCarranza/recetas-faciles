@@ -432,6 +432,96 @@ async function markPaymentError(env, paymentId, leaseToken, error) {
     .run();
 }
 
+async function deliverApprovedPayment(request, env, payment, product, downloadUrl) {
+  let leaseToken = null;
+  try {
+    const expirationDays = Number(env.LINK_EXPIRATION_DAYS || 30);
+    const approvedAt = Date.parse(payment.date_approved);
+    const expiresAt =
+      (Number.isFinite(approvedAt) ? approvedAt : Date.now()) +
+      expirationDays * 24 * 60 * 60_000;
+    const claim = await claimPayment(env, payment, expiresAt);
+    if (!claim) return { processed: false };
+    leaseToken = claim.leaseToken;
+
+    let deliveryUrl = downloadUrl;
+    if (!deliveryUrl) {
+      const token = await createDownloadToken(env, payment, product, expirationDays);
+      deliveryUrl = publicUrl(
+        request,
+        env,
+        `api/downloads/${encodeURIComponent(token)}`,
+      );
+    }
+
+    const payerEmail = payment.payer?.email;
+    const sandboxRecipient =
+      env.MP_ENVIRONMENT !== "production" ? env.SELLER_EMAIL : null;
+    const deliveryEmail = sandboxRecipient || payerEmail;
+    if (!deliveryEmail) throw new Error("El pago no tiene un correo de entrega.");
+
+    const payerName = [payment.payer?.first_name, payment.payer?.last_name]
+      .filter(Boolean)
+      .join(" ");
+    const greeting = payerName ? `, ${payerName}` : "";
+    const now = Math.floor(Date.now() / 1000);
+    if (!claim.record?.delivery_email_sent_at) {
+      await sendResendEmail(
+        env,
+        {
+          from: brandedEmailFrom(env.EMAIL_FROM),
+          to: [deliveryEmail],
+          reply_to: env.SUPPORT_EMAIL || env.SELLER_EMAIL || undefined,
+          subject: `Tu compra fue aprobada — ${BRAND_NAME}`,
+          text: `¡Gracias por tu compra${greeting}!\n\nDescargá tu recetario: ${deliveryUrl}\n\nEl enlace vence en ${expirationDays} días.`,
+          html: purchaseEmailHtml(
+            payment,
+            deliveryUrl,
+            payerName,
+            product,
+            expirationDays,
+          ),
+        },
+        `purchase-delivery/${payment.id}`,
+      );
+      await env.DB.prepare(
+        `UPDATE processed_payments
+            SET delivery_email_sent_at = ?, updated_at = ?
+          WHERE payment_id = ? AND lease_token = ?`,
+      )
+        .bind(now, now, String(payment.id), leaseToken)
+        .run();
+    }
+
+    if (env.SELLER_EMAIL && !claim.record?.seller_email_sent_at) {
+      await sendResendEmail(
+        env,
+        {
+          from: brandedEmailFrom(env.EMAIL_FROM),
+          to: [env.SELLER_EMAIL],
+          reply_to: env.SUPPORT_EMAIL || env.SELLER_EMAIL,
+          subject: `Venta confirmada — ${payment.id}`,
+          text: `Pago ${payment.id} aprobado por ${payment.transaction_amount} ${payment.currency_id}. Comprador: ${payerEmail || "sin correo"}.`,
+        },
+        `seller-notification/${payment.id}`,
+      );
+    }
+
+    await env.DB.prepare(
+      `UPDATE processed_payments
+          SET status = 'completed', seller_email_sent_at = ?, lease_until = 0,
+              last_error = NULL, updated_at = ?
+        WHERE payment_id = ? AND lease_token = ?`,
+    )
+      .bind(now, now, String(payment.id), leaseToken)
+      .run();
+    return { processed: true };
+  } catch (error) {
+    await markPaymentError(env, payment.id, leaseToken, error);
+    throw error;
+  }
+}
+
 async function handleCheckout(request, env) {
   const product = productFromEnv(env);
   if (!Number.isFinite(product.price) || product.price <= 0) {
@@ -504,12 +594,28 @@ async function handlePurchaseAccess(request, env) {
 
   const expirationDays = Number(env.LINK_EXPIRATION_DAYS || 30);
   const token = await createDownloadToken(env, payment, product, expirationDays);
-  return json({
-    downloadUrl: publicUrl(
+  const downloadUrl = publicUrl(
+    request,
+    env,
+    `api/downloads/${encodeURIComponent(token)}`,
+  );
+  let emailDelivery = "already-processing";
+  try {
+    const delivery = await deliverApprovedPayment(
       request,
       env,
-      `api/downloads/${encodeURIComponent(token)}`,
-    ),
+      payment,
+      product,
+      downloadUrl,
+    );
+    emailDelivery = delivery.processed ? "processed" : "already-processing";
+  } catch (error) {
+    emailDelivery = "retrying";
+    console.error("Error enviando el correo desde el retorno de compra:", error);
+  }
+  return json({
+    downloadUrl,
+    emailDelivery,
   });
 }
 
@@ -532,7 +638,6 @@ async function handleWebhook(request, env) {
     return new Response(null, { status: 401 });
   }
 
-  let leaseToken = null;
   try {
     const product = productFromEnv(env);
     const payment = await mercadoPagoRequest(env, `/v1/payments/${encodeURIComponent(paymentId)}`);
@@ -548,85 +653,9 @@ async function handleWebhook(request, env) {
       throw new Error(`El pago ${paymentId} no coincide con el producto esperado.`);
     }
 
-    const expirationDays = Number(env.LINK_EXPIRATION_DAYS || 30);
-    const approvedAt = Date.parse(payment.date_approved);
-    const expiresAt =
-      (Number.isFinite(approvedAt) ? approvedAt : Date.now()) +
-      expirationDays * 24 * 60 * 60_000;
-    const claim = await claimPayment(env, payment, expiresAt);
-    if (!claim) return new Response(null, { status: 200 });
-    leaseToken = claim.leaseToken;
-
-    const token = await createDownloadToken(env, payment, product, expirationDays);
-    const downloadUrl = publicUrl(
-      request,
-      env,
-      `api/downloads/${encodeURIComponent(token)}`,
-    );
-    const payerEmail = payment.payer?.email;
-    const sandboxRecipient =
-      env.MP_ENVIRONMENT !== "production" ? env.SELLER_EMAIL : null;
-    const deliveryEmail = sandboxRecipient || payerEmail;
-    if (!deliveryEmail) throw new Error("El pago no tiene un correo de entrega.");
-
-    const payerName = [payment.payer?.first_name, payment.payer?.last_name]
-      .filter(Boolean)
-      .join(" ");
-    const greeting = payerName ? `, ${payerName}` : "";
-    const now = Math.floor(Date.now() / 1000);
-    if (!claim.record?.delivery_email_sent_at) {
-      await sendResendEmail(
-        env,
-        {
-          from: brandedEmailFrom(env.EMAIL_FROM),
-          to: [deliveryEmail],
-          reply_to: env.SUPPORT_EMAIL || env.SELLER_EMAIL || undefined,
-          subject: `Tu compra fue aprobada — ${BRAND_NAME}`,
-          text: `¡Gracias por tu compra${greeting}!\n\nDescargá tu recetario: ${downloadUrl}\n\nEl enlace vence en ${expirationDays} días.`,
-          html: purchaseEmailHtml(
-            payment,
-            downloadUrl,
-            payerName,
-            product,
-            expirationDays,
-          ),
-        },
-        `purchase-delivery/${payment.id}`,
-      );
-      await env.DB.prepare(
-        `UPDATE processed_payments
-            SET delivery_email_sent_at = ?, updated_at = ?
-          WHERE payment_id = ? AND lease_token = ?`,
-      )
-        .bind(now, now, String(payment.id), leaseToken)
-        .run();
-    }
-
-    if (env.SELLER_EMAIL && !claim.record?.seller_email_sent_at) {
-      await sendResendEmail(
-        env,
-        {
-          from: brandedEmailFrom(env.EMAIL_FROM),
-          to: [env.SELLER_EMAIL],
-          reply_to: env.SUPPORT_EMAIL || env.SELLER_EMAIL,
-          subject: `Venta confirmada — ${payment.id}`,
-          text: `Pago ${payment.id} aprobado por ${payment.transaction_amount} ${payment.currency_id}. Comprador: ${payerEmail || "sin correo"}.`,
-        },
-        `seller-notification/${payment.id}`,
-      );
-    }
-
-    await env.DB.prepare(
-      `UPDATE processed_payments
-          SET status = 'completed', seller_email_sent_at = ?, lease_until = 0,
-              last_error = NULL, updated_at = ?
-        WHERE payment_id = ? AND lease_token = ?`,
-    )
-      .bind(now, now, String(payment.id), leaseToken)
-      .run();
+    await deliverApprovedPayment(request, env, payment, product);
     return new Response(null, { status: 200 });
   } catch (error) {
-    await markPaymentError(env, paymentId, leaseToken, error);
     console.error("Error procesando el webhook:", error);
     return new Response(null, { status: 500 });
   }
@@ -697,7 +726,7 @@ export default {
       if (request.method === "GET" && url.pathname === "/api/health") {
         return json({
           ok: true,
-          revision: "purchase-download-v1",
+          revision: "purchase-delivery-fallback-v2",
           webhook: await latestWebhookDiagnostic(env),
         });
       }
