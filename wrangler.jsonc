@@ -45,6 +45,6 @@
     "PRODUCT_CURRENCY": "ARS",
     "LINK_EXPIRATION_DAYS": "30",
     "PDF_OBJECT_KEY": "recetario.pdf",
-    "EMAIL_FROM": "Air Fryer 365 <onboarding@resend.dev>"
+    "EMAIL_FROM": "Air Fryer 365 <compras@buenasrecetas.com.ar>"
   }
 }

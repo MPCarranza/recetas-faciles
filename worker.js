@@ -643,7 +643,7 @@ export default {
       if (request.method === "GET" && url.pathname === "/api/health") {
         return json({
           ok: true,
-          revision: "webhook-signature-v3",
+          revision: "verified-email-domain-v1",
           webhook: await latestWebhookDiagnostic(env),
         });
       }
