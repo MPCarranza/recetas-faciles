@@ -86,14 +86,24 @@
       }
 
       .brand__mark {
-        display: grid;
-        place-items: center;
+        position: relative;
+        display: block;
         width: 38px;
         height: 38px;
-        color: white;
-        background: var(--green);
-        border-radius: 11px;
-        font-size: 22px;
+        flex: 0 0 38px;
+        overflow: hidden;
+        background: #000;
+        border: 1px solid #000;
+        border-radius: 10px;
+      }
+
+      .brand__mark img {
+        position: absolute;
+        top: -58.3%;
+        left: -63.8%;
+        width: 222.22%;
+        max-width: none;
+        height: auto;
       }
 
       .status {
@@ -368,7 +378,9 @@
       <section class="confirmation" aria-labelledby="confirmation-title">
         <div class="confirmation__content">
           <div class="brand">
-            <span class="brand__mark" aria-hidden="true">↗</span>
+            <span class="brand__mark" aria-hidden="true">
+              <img src="assets/brand-logo.png" alt="" />
+            </span>
             Air Fryer 365
           </div>
 

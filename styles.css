@@ -429,21 +429,28 @@ h1, h2, h3, h4, h5, h6 {
   gap: 0.75rem;
 }
 
-.logo-badge-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, var(--green-primary) 0%, var(--green-dark) 100%);
-  color: var(--white);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px var(--green-glow);
+.brand-mark {
+  --brand-mark-size: 42px;
+  position: relative;
+  display: block;
+  width: var(--brand-mark-size);
+  height: var(--brand-mark-size);
+  flex: 0 0 var(--brand-mark-size);
+  overflow: hidden;
+  background: #000;
+  border: 1px solid #000;
+  border-radius: 11px;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.16);
 }
 
-.logo-badge-icon svg {
-  width: 22px;
-  height: 22px;
+.brand-mark img {
+  position: absolute;
+  top: -58.3%;
+  left: -63.8%;
+  width: 222.22%;
+  max-width: none;
+  height: auto;
+  pointer-events: none;
 }
 
 .logo-text {
@@ -2334,6 +2341,16 @@ h1, h2, h3, h4, h5, h6 {
 
 .footer-brand .logo-title {
   color: var(--white);
+}
+
+.brand-logo--footer {
+  width: fit-content;
+}
+
+.brand-mark--footer {
+  --brand-mark-size: 48px;
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: none;
 }
 
 .footer-bio {
