@@ -1843,75 +1843,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ==========================================================================
-   TESTIMONIOS
-   ========================================================================== */
-.testimonials-section {
-  padding: 5rem 0;
-  background-color: #F4F7F5;
-}
-
-.testimonials-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
-
-.testimonial-card {
-  background-color: var(--white);
-  border-radius: var(--radius-lg);
-  padding: 2rem;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-light);
-  display: flex;
-  flex-direction: column;
-}
-
-.test-stars {
-  color: #F59E0B;
-  font-size: 1.1rem;
-  margin-bottom: 1rem;
-}
-
-.test-quote {
-  font-size: 0.95rem;
-  color: var(--text-muted);
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
-  flex-grow: 1;
-  font-style: italic;
-}
-
-.test-author {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-}
-
-.author-avatar {
-  width: 44px;
-  height: 44px;
-  background: linear-gradient(135deg, var(--green-primary) 0%, var(--green-dark) 100%);
-  color: var(--white);
-  font-weight: 800;
-  font-size: 0.9rem;
-  border-radius: var(--radius-full);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.author-info strong {
-  display: block;
-  font-size: 0.95rem;
-  color: var(--text-main);
-}
-
-.author-info span {
-  font-size: 0.75rem;
-  color: var(--text-light);
-}
-
-/* ==========================================================================
    GARANTÍA
    ========================================================================== */
 .guarantee-section {
@@ -2278,8 +2209,7 @@ h1, h2, h3, h4, h5, h6 {
   max-width: 900px;
 }
 
-.faq-section .section-title,
-.testimonials-section .section-title {
+.faq-section .section-title {
   font-size: clamp(2.4rem, 5vw, 4rem);
 }
 
@@ -2537,8 +2467,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .benefits-grid,
-  .bonuses-grid,
-  .testimonials-grid {
+  .bonuses-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -2614,8 +2543,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .benefits-grid,
-  .bonuses-grid,
-  .testimonials-grid {
+  .bonuses-grid {
     grid-template-columns: 1fr;
   }
 
