@@ -1283,8 +1283,18 @@ h1, h2, h3, h4, h5, h6 {
 
 .comp-main-title {
   font-size: clamp(2.3rem, 4.4vw, 3.65rem);
-  letter-spacing: -0.02em;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
   margin-bottom: 1rem;
+}
+
+.comp-main-title .mister-highlight {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }
 
 .comp-main-title .highlight-serif-italic {
