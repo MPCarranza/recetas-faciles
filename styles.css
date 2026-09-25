@@ -1645,8 +1645,19 @@ h1, h2, h3, h4, h5, h6 {
 
 .mid-cta-title {
   font-size: clamp(2.4rem, 5vw, 4.2rem);
+  font-family: var(--font-heading);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
   color: var(--white);
   margin-bottom: 1rem;
+}
+
+.mid-cta-title .mister-highlight {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }
 
 .mid-cta-desc {
