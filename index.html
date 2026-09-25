@@ -28,7 +28,7 @@
       href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet" />
 
-    <link rel="stylesheet" href="styles.css?v=20260925-2" />
+    <link rel="stylesheet" href="styles.css?v=20260925-3" />
   </head>
   <body>
     <!-- Top Announcement Bar -->
@@ -418,12 +418,10 @@
           </svg>
           <div class="stamp-center-icon">📖</div>
         </div>
-      </section>
-
-      <!-- =========================================================================
-         SECCIÓN 3: COMPARATIVA CLARA Y DIRECTA
-         ========================================================================= -->
-      <section class="comparison-ref-section" id="comparativa">
+      <!-- La comparativa forma parte de la misma sección “¿Te pasa?” -->
+      <div
+        class="comparison-ref-section comparison-ref-section--inside"
+        id="comparativa">
         <div class="container">
           <div class="comp-header text-center">
             <h2 class="comp-main-title">
@@ -533,6 +531,7 @@
             >
           </div>
         </div>
+      </div>
       </section>
 
       <!-- =========================================================================
@@ -541,132 +540,98 @@
       <section class="content-preview-section" id="contenido">
         <div class="container">
           <div class="split-preview-header text-center">
-            <div class="section-badge badge-primary">EBOOK POR DENTRO</div>
-            <h2 class="section-title">Miralo por dentro.</h2>
+            <div class="section-badge badge-primary">RECETAS REALES DEL EBOOK</div>
+            <h2 class="section-title">Miralo por dentro</h2>
             <p class="section-lead">
-              365 recetas para que nunca te falte una idea.
+              Una muestra de todo lo rico que podés cocinar en tu Air Fryer.
             </p>
           </div>
 
-          <div class="recipes-split-grid">
-            <!-- Column: Saladas -->
-            <div class="recipe-col savory-col">
-              <div class="col-badge-header green-header">
-                <span class="col-icon">🍗</span>
-                <h3>Recetas Saladas (Comidas & Acompañamientos)</h3>
+          <div class="recipe-gallery">
+            <article class="recipe-photo-card">
+              <div class="recipe-photo-wrap">
+                <img
+                  src="assets/recipe-chicken-herbs.jpg"
+                  alt="Pollo dorado con especias y hierbas cocinado en Air Fryer"
+                  loading="lazy" />
+                <span class="recipe-category recipe-category--savory">SALADA</span>
               </div>
-              <div class="recipe-item-list">
-                <div class="recipe-mini-card">
-                  <span class="recipe-num">01</span>
-                  <div class="recipe-detail">
-                    <h4>Pollo con Especias y Hierbas</h4>
-                    <p>Preparación simple con condimentos básicos de cocina.</p>
+              <div class="recipe-photo-content">
+                <div class="recipe-card-heading">
+                  <div>
+                    <span class="recipe-kicker">RECETA 01</span>
+                    <h3>Pollo con especias y hierbas</h3>
                   </div>
-                  <span class="recipe-time">18 min</span>
+                  <span class="recipe-duration">18 min</span>
                 </div>
-
-                <div class="recipe-mini-card">
-                  <span class="recipe-num">02</span>
-                  <div class="recipe-detail">
-                    <h4>Salmón a la Mostaza</h4>
-                    <p>Pescado cocinado al punto con salsa suave.</p>
-                  </div>
-                  <span class="recipe-time">12 min</span>
-                </div>
-
-                <div class="recipe-mini-card">
-                  <span class="recipe-num">03</span>
-                  <div class="recipe-detail">
-                    <h4>Hamburguesas Caseras de Carne y Avena</h4>
-                    <p>Fáciles de armar y cocinar en la canasta.</p>
-                  </div>
-                  <span class="recipe-time">14 min</span>
-                </div>
-
-                <div class="recipe-mini-card">
-                  <span class="recipe-num">04</span>
-                  <div class="recipe-detail">
-                    <h4>Mix de Vegetales Asados</h4>
-                    <p>Zanahorias, brócoli y calabacín en trozos dorados.</p>
-                  </div>
-                  <span class="recipe-time">15 min</span>
-                </div>
-
-                <div class="recipe-mini-card">
-                  <span class="recipe-num">05</span>
-                  <div class="recipe-detail">
-                    <h4>Taquitos Dorados de Pollo</h4>
-                    <p>
-                      Tortillas rellenas listas con un toque ligero de aceite.
-                    </p>
-                  </div>
-                  <span class="recipe-time">10 min</span>
-                </div>
-
-                <div class="more-recipes-note">
-                  <span>+ Muchísimas recetas saladas más en el ebook</span>
-                </div>
+                <p>Dorado por fuera, jugoso por dentro y lleno de sabor.</p>
               </div>
-            </div>
+            </article>
 
-            <!-- Column: Dulces -->
-            <div class="recipe-col sweet-col">
-              <div class="col-badge-header yellow-header">
-                <span class="col-icon">🍪</span>
-                <h3>Recetas Dulces (Desayunos & Meriendas)</h3>
+            <article class="recipe-photo-card">
+              <div class="recipe-photo-wrap">
+                <img
+                  src="assets/recipe-salmon-mustard.jpg"
+                  alt="Salmón a la mostaza y hierbas cocinado en Air Fryer"
+                  loading="lazy" />
+                <span class="recipe-category recipe-category--savory">SALADA</span>
               </div>
-              <div class="recipe-item-list">
-                <div class="recipe-mini-card">
-                  <span class="recipe-num">26</span>
-                  <div class="recipe-detail">
-                    <h4>Cookies de Avena y Chispas de Chocolate</h4>
-                    <p>Galletas caseras fáciles para la tarde.</p>
+              <div class="recipe-photo-content">
+                <div class="recipe-card-heading">
+                  <div>
+                    <span class="recipe-kicker">RECETA 02</span>
+                    <h3>Salmón a la mostaza</h3>
                   </div>
-                  <span class="recipe-time">8 min</span>
+                  <span class="recipe-duration">12 min</span>
                 </div>
-
-                <div class="recipe-mini-card">
-                  <span class="recipe-num">27</span>
-                  <div class="recipe-detail">
-                    <h4>Donas Caseras de Yogur y Canela</h4>
-                    <p>Masa simple horneada en minutos.</p>
-                  </div>
-                  <span class="recipe-time">10 min</span>
-                </div>
-
-                <div class="recipe-mini-card">
-                  <span class="recipe-num">28</span>
-                  <div class="recipe-detail">
-                    <h4>Mug Cake de Chocolate</h4>
-                    <p>Bizcocho individual listo en pocos minutos.</p>
-                  </div>
-                  <span class="recipe-time">6 min</span>
-                </div>
-
-                <div class="recipe-mini-card">
-                  <span class="recipe-num">29</span>
-                  <div class="recipe-detail">
-                    <h4>Chips de Manzana con Canela</h4>
-                    <p>Láminas de fruta horneadas y crocantes.</p>
-                  </div>
-                  <span class="recipe-time">12 min</span>
-                </div>
-
-                <div class="recipe-mini-card">
-                  <span class="recipe-num">30</span>
-                  <div class="recipe-detail">
-                    <h4>Tostadas Francesas con Frutas</h4>
-                    <p>Opción rápida y rica para el desayuno.</p>
-                  </div>
-                  <span class="recipe-time">9 min</span>
-                </div>
-
-                <div class="more-recipes-note">
-                  <span>+ Muchísimas recetas dulces más en el ebook</span>
-                </div>
+                <p>Tierno, sabroso y listo para una comida sin vueltas.</p>
               </div>
-            </div>
+            </article>
+
+            <article class="recipe-photo-card">
+              <div class="recipe-photo-wrap">
+                <img
+                  src="assets/recipe-roasted-vegetables.jpg"
+                  alt="Mix colorido de vegetales asados en Air Fryer"
+                  loading="lazy" />
+                <span class="recipe-category recipe-category--side">ACOMPAÑAMIENTO</span>
+              </div>
+              <div class="recipe-photo-content">
+                <div class="recipe-card-heading">
+                  <div>
+                    <span class="recipe-kicker">RECETA 03</span>
+                    <h3>Mix de vegetales asados</h3>
+                  </div>
+                  <span class="recipe-duration">15 min</span>
+                </div>
+                <p>Crocantes, coloridos y perfectos para acompañar todo.</p>
+              </div>
+            </article>
+
+            <article class="recipe-photo-card">
+              <div class="recipe-photo-wrap">
+                <img
+                  src="assets/recipe-oatmeal-cookies.jpg"
+                  alt="Cookies de avena y chocolate cocinadas en Air Fryer"
+                  loading="lazy" />
+                <span class="recipe-category recipe-category--sweet">DULCE</span>
+              </div>
+              <div class="recipe-photo-content">
+                <div class="recipe-card-heading">
+                  <div>
+                    <span class="recipe-kicker">RECETA 04</span>
+                    <h3>Cookies de avena y chocolate</h3>
+                  </div>
+                  <span class="recipe-duration">8 min</span>
+                </div>
+                <p>Doradas en los bordes, tiernas y bien chocolatosas.</p>
+              </div>
+            </article>
           </div>
+
+          <p class="recipe-gallery-note">
+            Esto es solo una muestra: adentro te esperan 365 ideas dulces y saladas.
+          </p>
         </div>
       </section>
 
