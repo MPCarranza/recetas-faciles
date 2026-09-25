@@ -81,7 +81,7 @@ function publicUrl(relativePath) {
 
 function paymentIdFrom(req) {
   return String(
-    req.query["data.id"] || req.body?.data?.id || req.body?.id || "",
+    req.query["data.id"] || req.query.data_id || req.body?.data?.id || "",
   ).trim();
 }
 
@@ -152,7 +152,7 @@ function verifyDownloadToken(token) {
   }
 }
 
-function isValidWebhookSignature(req, dataId) {
+function isValidWebhookSignature(req) {
   const secret = process.env.MP_WEBHOOK_SECRET;
   if (!secret) return process.env.NODE_ENV !== "production";
 
@@ -164,19 +164,40 @@ function isValidWebhookSignature(req, dataId) {
       return [key, value.join("=")];
     }),
   );
-  if (!parts.ts || !parts.v1 || !requestId || !dataId) return false;
+  if (
+    !parts.ts ||
+    !requestId ||
+    !/^[0-9a-f]{64}$/i.test(parts.v1 || "")
+  ) {
+    return false;
+  }
 
-  const manifest = `id:${dataId.toLowerCase()};request-id:${requestId};ts:${parts.ts};`;
-  const expected = crypto
-    .createHmac("sha256", secret)
-    .update(manifest)
-    .digest("hex");
+  const signatureIds = [
+    req.query["data.id"],
+    req.query.data_id,
+    req.query.id,
+    req.body?.data?.id,
+    req.body?.id,
+  ]
+    .filter((value) => value !== null && value !== undefined)
+    .map((value) => String(value).trim().toLowerCase())
+    .filter(Boolean)
+    .filter((value, index, values) => values.indexOf(value) === index);
+
+  if (!signatureIds.length) return false;
   const suppliedBuffer = Buffer.from(parts.v1, "utf8");
-  const expectedBuffer = Buffer.from(expected, "utf8");
-  return (
-    suppliedBuffer.length === expectedBuffer.length &&
-    crypto.timingSafeEqual(suppliedBuffer, expectedBuffer)
-  );
+  return signatureIds.some((signatureId) => {
+    const manifest = `id:${signatureId};request-id:${requestId};ts:${parts.ts};`;
+    const expected = crypto
+      .createHmac("sha256", secret.trim())
+      .update(manifest)
+      .digest("hex");
+    const expectedBuffer = Buffer.from(expected, "utf8");
+    return (
+      suppliedBuffer.length === expectedBuffer.length &&
+      crypto.timingSafeEqual(suppliedBuffer, expectedBuffer)
+    );
+  });
 }
 
 function escapeHtml(value) {
@@ -395,7 +416,7 @@ app.post("/api/webhooks/mercadopago", async (req, res) => {
   if (!paymentId || (eventType && eventType !== "payment")) {
     return res.sendStatus(200);
   }
-  if (!isValidWebhookSignature(req, paymentId)) return res.sendStatus(401);
+  if (!isValidWebhookSignature(req)) return res.sendStatus(401);
 
   if (!paymentClient) return res.sendStatus(503);
   if (processedPayments.has(paymentId)) return res.sendStatus(200);

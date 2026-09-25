@@ -210,7 +210,7 @@ async function verifyDownloadToken(env, token, product) {
   }
 }
 
-async function isValidWebhookSignature(request, env, dataId) {
+async function isValidWebhookSignature(request, env, body) {
   if (!env.MP_WEBHOOK_SECRET) return env.NODE_ENV !== "production";
   const signature = request.headers.get("x-signature") || "";
   const requestId = request.headers.get("x-request-id") || "";
@@ -220,13 +220,38 @@ async function isValidWebhookSignature(request, env, dataId) {
       return [key, value.join("=")];
     }),
   );
-  if (!parts.ts || !parts.v1 || !requestId || !dataId) return false;
-  const manifest = `id:${dataId.toLowerCase()};request-id:${requestId};ts:${parts.ts};`;
-  const expected = await hmac(env.MP_WEBHOOK_SECRET, manifest);
+  if (
+    !parts.ts ||
+    !requestId ||
+    !/^[0-9a-f]{64}$/i.test(parts.v1 || "")
+  ) {
+    return false;
+  }
+
+  const url = new URL(request.url);
+  const signatureIds = [
+    url.searchParams.get("data.id"),
+    url.searchParams.get("data_id"),
+    url.searchParams.get("id"),
+    body?.data?.id,
+    body?.id,
+  ]
+    .filter((value) => value !== null && value !== undefined)
+    .map((value) => String(value).trim().toLowerCase())
+    .filter(Boolean)
+    .filter((value, index, values) => values.indexOf(value) === index);
+
+  if (!signatureIds.length) return false;
   const supplied = Uint8Array.from(parts.v1.match(/.{1,2}/g) || [], (byte) =>
     Number.parseInt(byte, 16),
   );
-  return constantTimeEqual(supplied, expected);
+  const secret = String(env.MP_WEBHOOK_SECRET).trim();
+  for (const signatureId of signatureIds) {
+    const manifest = `id:${signatureId};request-id:${requestId};ts:${parts.ts};`;
+    const expected = await hmac(secret, manifest);
+    if (constantTimeEqual(supplied, expected)) return true;
+  }
+  return false;
 }
 
 async function mercadoPagoRequest(env, pathname, options = {}) {
@@ -366,13 +391,16 @@ async function handleWebhook(request, env) {
   const url = new URL(request.url);
   const body = await request.json().catch(() => ({}));
   const paymentId = String(
-    url.searchParams.get("data.id") || body?.data?.id || body?.id || "",
+    url.searchParams.get("data.id") ||
+      url.searchParams.get("data_id") ||
+      body?.data?.id ||
+      "",
   ).trim();
   const eventType = String(body?.type || url.searchParams.get("type") || "");
   if (!paymentId || (eventType && eventType !== "payment")) {
     return new Response(null, { status: 200 });
   }
-  if (!(await isValidWebhookSignature(request, env, paymentId))) {
+  if (!(await isValidWebhookSignature(request, env, body))) {
     return new Response(null, { status: 401 });
   }
 
