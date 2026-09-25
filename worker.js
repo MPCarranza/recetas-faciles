@@ -210,8 +210,20 @@ async function verifyDownloadToken(env, token, product) {
   }
 }
 
-async function isValidWebhookSignature(request, env, body) {
-  if (!env.MP_WEBHOOK_SECRET) return env.NODE_ENV !== "production";
+function webhookSecretCandidates(value) {
+  const trimmed = String(value || "").trim();
+  const withoutAssignment = trimmed.replace(/^MP_WEBHOOK_SECRET\s*=\s*/i, "");
+  const withoutQuotes = withoutAssignment.replace(/^(["'])(.*)\1$/, "$2");
+  return [...new Set([trimmed, withoutAssignment, withoutQuotes].filter(Boolean))];
+}
+
+async function validateWebhookSignature(request, env, body) {
+  if (!env.MP_WEBHOOK_SECRET) {
+    return {
+      valid: env.NODE_ENV !== "production",
+      reason: "missing_server_secret",
+    };
+  }
   const signature = request.headers.get("x-signature") || "";
   const requestId = request.headers.get("x-request-id") || "";
   const parts = Object.fromEntries(
@@ -220,12 +232,11 @@ async function isValidWebhookSignature(request, env, body) {
       return [key, value.join("=")];
     }),
   );
-  if (
-    !parts.ts ||
-    !requestId ||
-    !/^[0-9a-f]{64}$/i.test(parts.v1 || "")
-  ) {
-    return false;
+  if (!signature) return { valid: false, reason: "missing_x_signature" };
+  if (!requestId) return { valid: false, reason: "missing_x_request_id" };
+  if (!parts.ts) return { valid: false, reason: "missing_signature_timestamp" };
+  if (!/^[0-9a-f]{64}$/i.test(parts.v1 || "")) {
+    return { valid: false, reason: "malformed_signature" };
   }
 
   const url = new URL(request.url);
@@ -241,17 +252,78 @@ async function isValidWebhookSignature(request, env, body) {
     .filter(Boolean)
     .filter((value, index, values) => values.indexOf(value) === index);
 
-  if (!signatureIds.length) return false;
+  if (!signatureIds.length) return { valid: false, reason: "missing_signed_id" };
   const supplied = Uint8Array.from(parts.v1.match(/.{1,2}/g) || [], (byte) =>
     Number.parseInt(byte, 16),
   );
-  const secret = String(env.MP_WEBHOOK_SECRET).trim();
-  for (const signatureId of signatureIds) {
-    const manifest = `id:${signatureId};request-id:${requestId};ts:${parts.ts};`;
-    const expected = await hmac(secret, manifest);
-    if (constantTimeEqual(supplied, expected)) return true;
+  const secrets = webhookSecretCandidates(env.MP_WEBHOOK_SECRET);
+  for (const secret of secrets) {
+    for (const signatureId of signatureIds) {
+      const manifest = `id:${signatureId};request-id:${requestId};ts:${parts.ts};`;
+      const expected = await hmac(secret, manifest);
+      if (constantTimeEqual(supplied, expected)) {
+        return {
+          valid: true,
+          reason: "valid",
+          idCandidates: signatureIds.length,
+          secretNormalized: secret !== String(env.MP_WEBHOOK_SECRET),
+        };
+      }
+    }
   }
-  return false;
+  return {
+    valid: false,
+    reason: "signature_mismatch",
+    idCandidates: signatureIds.length,
+    secretNormalized: secrets.length > 1,
+  };
+}
+
+async function recordWebhookDiagnostic(env, diagnostic) {
+  if (!env.DB) return;
+  try {
+    await env.DB.prepare(
+      `CREATE TABLE IF NOT EXISTS webhook_diagnostics (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        reason TEXT NOT NULL,
+        id_candidates INTEGER NOT NULL DEFAULT 0,
+        secret_normalized INTEGER NOT NULL DEFAULT 0,
+        created_at INTEGER NOT NULL
+      )`,
+    ).run();
+    await env.DB.prepare(
+      `INSERT INTO webhook_diagnostics
+        (id, reason, id_candidates, secret_normalized, created_at)
+       VALUES (1, ?, ?, ?, ?)
+       ON CONFLICT(id) DO UPDATE SET
+         reason = excluded.reason,
+         id_candidates = excluded.id_candidates,
+         secret_normalized = excluded.secret_normalized,
+         created_at = excluded.created_at`,
+    )
+      .bind(
+        diagnostic.reason,
+        Number(diagnostic.idCandidates || 0),
+        diagnostic.secretNormalized ? 1 : 0,
+        Math.floor(Date.now() / 1000),
+      )
+      .run();
+  } catch (error) {
+    console.error("No se pudo registrar el diagnÃ³stico del webhook:", error);
+  }
+}
+
+async function latestWebhookDiagnostic(env) {
+  if (!env.DB) return null;
+  try {
+    return await env.DB.prepare(
+      `SELECT reason, id_candidates AS idCandidates,
+              secret_normalized AS secretNormalized, created_at AS createdAt
+         FROM webhook_diagnostics WHERE id = 1`,
+    ).first();
+  } catch {
+    return null;
+  }
 }
 
 async function mercadoPagoRequest(env, pathname, options = {}) {
@@ -400,7 +472,9 @@ async function handleWebhook(request, env) {
   if (!paymentId || (eventType && eventType !== "payment")) {
     return new Response(null, { status: 200 });
   }
-  if (!(await isValidWebhookSignature(request, env, body))) {
+  const signatureValidation = await validateWebhookSignature(request, env, body);
+  await recordWebhookDiagnostic(env, signatureValidation);
+  if (!signatureValidation.valid) {
     return new Response(null, { status: 401 });
   }
 
@@ -567,7 +641,11 @@ export default {
         });
       }
       if (request.method === "GET" && url.pathname === "/api/health") {
-        return json({ ok: true, revision: "webhook-signature-v2" });
+        return json({
+          ok: true,
+          revision: "webhook-signature-v3",
+          webhook: await latestWebhookDiagnostic(env),
+        });
       }
       if (request.method === "POST" && url.pathname === "/api/checkout") {
         return await handleCheckout(request, env);
