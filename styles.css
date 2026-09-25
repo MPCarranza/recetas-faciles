@@ -1962,10 +1962,19 @@ h1, h2, h3, h4, h5, h6 {
 
 .offer-main-title {
   font-size: clamp(2.15rem, 4vw, 3.35rem);
+  font-family: var(--font-heading);
   color: var(--text-main);
   margin-bottom: 0.5rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+}
+
+.offer-main-title .mister-highlight {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }
 
 .offer-main-sub {
