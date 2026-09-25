@@ -566,6 +566,9 @@ export default {
           currency: product.currency,
         });
       }
+      if (request.method === "GET" && url.pathname === "/api/health") {
+        return json({ ok: true, revision: "webhook-signature-v2" });
+      }
       if (request.method === "POST" && url.pathname === "/api/checkout") {
         return await handleCheckout(request, env);
       }
