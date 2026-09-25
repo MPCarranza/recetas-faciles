@@ -137,6 +137,28 @@
 
       .lead strong { color: var(--ink); }
 
+      .delivery-note {
+        max-width: 590px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin: -8px 0 30px;
+        padding: 15px 17px;
+        background: var(--yellow);
+        border: 2px solid var(--ink);
+        border-radius: 16px;
+        box-shadow: 4px 4px 0 var(--ink);
+        font-size: 0.95rem;
+        font-weight: 750;
+        line-height: 1.4;
+      }
+
+      .delivery-note__icon {
+        flex: 0 0 auto;
+        font-size: 1.25rem;
+        line-height: 1.1;
+      }
+
       .order-number {
         display: none;
         width: fit-content;
@@ -331,8 +353,13 @@
 
           <p class="lead">
             Tu recetario <strong>Air Fryer 365 Recetas</strong> ya está en camino.
-            En unos instantes recibirás el acceso privado en tu correo.
+            Recibirás el acceso privado en tu correo.
           </p>
+
+          <div class="delivery-note" role="status">
+            <span class="delivery-note__icon" aria-hidden="true">⏱</span>
+            <span>El correo puede tardar hasta 10 minutos en llegar. Es normal, no te preocupes.</span>
+          </div>
 
           <p class="order-number" id="order-number">
             Operación <strong id="payment-id"></strong>
@@ -363,8 +390,8 @@
           </div>
 
           <p class="help">
-            El enlace funciona durante 30 días. Si el correo tarda más de unos
-            minutos, revisá Spam o Promociones.
+            El enlace funciona durante 30 días. Si después de 10 minutos no lo
+            encontrás, revisá Spam o Promociones.
           </p>
         </aside>
       </section>
