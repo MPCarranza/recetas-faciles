@@ -28,7 +28,7 @@
       href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet" />
 
-    <link rel="stylesheet" href="styles.css?v=20260925-14" />
+    <link rel="stylesheet" href="styles.css?v=20260925-15" />
   </head>
   <body>
     <!-- Header / Navigation Bar -->
@@ -1044,36 +1044,99 @@
         aria-label="Cerrar aviso"></button>
       <section
         class="support-modal-card"
-        role="alertdialog"
+        role="dialog"
         aria-modal="true"
-        aria-labelledby="support-alert-title"
-        aria-describedby="support-alert-description">
+        aria-label="Contacto y soporte">
         <button
           type="button"
           class="support-modal-close"
           data-support-close
           aria-label="Cerrar aviso">×</button>
-        <span class="support-modal-badge">ANTES DE ESCRIBIRNOS</span>
-        <h2 id="support-alert-title">
-          Estamos para <span>ayudarte.</span>
-        </h2>
-        <div id="support-alert-description" class="support-modal-copy">
-          <p>
-            Si realizaste la compra hace pocos minutos, no te preocupes: la
-            acreditación y el envío pueden demorar según el método de pago.
-          </p>
-          <p class="support-modal-notice">
-            Si la compra ya fue aprobada y todavía no recibiste el recetario,
-            adjuntá al correo el comprobante de compra que Mercado Pago mostró
-            para descargar.
-          </p>
+        <div id="support-alert-intro">
+          <span class="support-modal-badge">ANTES DE ESCRIBIRNOS</span>
+          <h2>Estamos para <span>ayudarte.</span></h2>
+          <div class="support-modal-copy">
+            <p>
+              Si realizaste la compra hace pocos minutos, no te preocupes: la
+              acreditación y el envío pueden demorar según el método de pago.
+            </p>
+            <p class="support-modal-notice">
+              Si la compra ya fue aprobada y todavía no recibiste el recetario,
+              adjuntá el comprobante que Mercado Pago mostró para descargar.
+            </p>
+          </div>
+          <button type="button" class="support-modal-action" id="support-alert-continue">
+            Entendido, abrir formulario →
+          </button>
         </div>
-        <button type="button" class="support-modal-action" id="support-alert-continue">
-          Entendido, escribir a soporte →
-        </button>
+
+        <form id="support-form" class="support-form" hidden novalidate>
+          <span class="support-modal-badge">CONTACTO Y SOPORTE</span>
+          <h2>Contanos qué <span>pasó.</span></h2>
+
+          <div class="support-form-grid">
+            <label class="support-field">
+              <span>Nombre y apellido *</span>
+              <input type="text" name="name" autocomplete="name" maxlength="80" required />
+            </label>
+            <label class="support-field">
+              <span>Email de la compra *</span>
+              <input type="email" name="email" autocomplete="email" maxlength="160" required />
+            </label>
+          </div>
+
+          <div class="support-form-grid">
+            <label class="support-field">
+              <span>Número de operación</span>
+              <input type="text" name="paymentId" inputmode="numeric" maxlength="40" />
+            </label>
+            <label class="support-field">
+              <span>Motivo *</span>
+              <select name="reason" required>
+                <option value="">Elegí una opción</option>
+                <option value="delivery">No recibí el recetario</option>
+                <option value="download">No puedo descargarlo</option>
+                <option value="payment">Consulta sobre el pago</option>
+                <option value="other">Otro motivo</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="support-field">
+            <span>¿Cómo podemos ayudarte? *</span>
+            <textarea name="message" rows="4" maxlength="1500" required></textarea>
+          </label>
+
+          <label class="support-field support-file-field">
+            <span>Comprobante de compra</span>
+            <input
+              type="file"
+              name="receipt"
+              accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" />
+            <small>Opcional · PDF o imagen · máximo 5 MB</small>
+          </label>
+
+          <label class="support-honeypot" aria-hidden="true">
+            Sitio web
+            <input type="text" name="website" tabindex="-1" autocomplete="off" />
+          </label>
+
+          <p class="support-form-status" id="support-form-status" role="status" aria-live="polite"></p>
+          <div class="support-form-actions">
+            <button type="button" class="support-form-back" id="support-form-back">← Volver</button>
+            <button type="submit" class="support-modal-action support-submit">Enviar consulta →</button>
+          </div>
+        </form>
+
+        <div class="support-success" id="support-success" hidden>
+          <span class="support-modal-badge">MENSAJE ENVIADO</span>
+          <h2>Ya lo <span>recibimos.</span></h2>
+          <p>Tu consulta llegó a Buenas Recetas. Te responderemos al email que indicaste.</p>
+          <button type="button" class="support-modal-action" data-support-close>Listo</button>
+        </div>
       </section>
     </div>
 
-    <script src="script.js?v=20260925-5"></script>
+    <script src="script.js?v=20260925-6"></script>
   </body>
 </html>

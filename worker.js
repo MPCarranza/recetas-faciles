@@ -3,6 +3,13 @@ const textDecoder = new TextDecoder();
 const BRAND_NAME = "Buenas Recetas";
 const BRAND_LOGO_URL =
   "https://buenasrecetas.com.ar/assets/brand-logo-email.png?v=20260925-1";
+const SUPPORT_MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024;
+const SUPPORT_ALLOWED_FILE_TYPES = new Set([
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
 
 function brandedEmailFrom(value) {
   const raw = String(value || "").trim();
@@ -53,6 +60,21 @@ function formatCurrency(amount, currency) {
     currency,
     maximumFractionDigits: 0,
   }).format(amount);
+}
+
+function bytesToBase64(bytes) {
+  let binary = "";
+  for (let index = 0; index < bytes.length; index += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
+  }
+  return btoa(binary);
+}
+
+async function sha256Hex(value) {
+  const digest = new Uint8Array(
+    await crypto.subtle.digest("SHA-256", textEncoder.encode(value)),
+  );
+  return [...digest].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 function paymentMethodLabel(payment) {
@@ -619,6 +641,150 @@ async function handlePurchaseAccess(request, env) {
   });
 }
 
+async function acceptSupportRequest(request, env, email) {
+  if (!env.DB) return true;
+
+  const now = Math.floor(Date.now() / 1000);
+  const windowStart = now - 30 * 60;
+  const requester = `${request.headers.get("cf-connecting-ip") || "unknown"}|${email.toLowerCase()}`;
+  const requesterHash = await sha256Hex(requester);
+
+  await env.DB.prepare(
+    `CREATE TABLE IF NOT EXISTS support_rate_limits (
+      id TEXT PRIMARY KEY,
+      requester_hash TEXT NOT NULL,
+      created_at INTEGER NOT NULL
+    )`,
+  ).run();
+  await env.DB.prepare(
+    `CREATE INDEX IF NOT EXISTS idx_support_rate_limits_requester
+       ON support_rate_limits (requester_hash, created_at)`,
+  ).run();
+
+  const recent = await env.DB.prepare(
+    `SELECT COUNT(*) AS total
+       FROM support_rate_limits
+      WHERE requester_hash = ? AND created_at >= ?`,
+  )
+    .bind(requesterHash, windowStart)
+    .first();
+  if (Number(recent?.total || 0) >= 3) return false;
+
+  await env.DB.prepare(
+    `INSERT INTO support_rate_limits (id, requester_hash, created_at)
+     VALUES (?, ?, ?)`,
+  )
+    .bind(crypto.randomUUID(), requesterHash, now)
+    .run();
+  return true;
+}
+
+async function handleSupportRequest(request, env) {
+  const contentType = request.headers.get("content-type") || "";
+  if (!contentType.toLowerCase().startsWith("multipart/form-data")) {
+    return json({ error: "El formulario no tiene un formato válido." }, 415);
+  }
+
+  const form = await request.formData();
+  if (String(form.get("website") || "").trim()) return json({ ok: true });
+
+  const name = String(form.get("name") || "").trim();
+  const email = String(form.get("email") || "").trim().toLowerCase();
+  const paymentId = String(form.get("paymentId") || "").trim();
+  const reason = String(form.get("reason") || "").trim();
+  const message = String(form.get("message") || "").trim();
+  const receipt = form.get("receipt");
+  const reasonLabels = {
+    delivery: "No recibió el recetario",
+    download: "No puede descargarlo",
+    payment: "Consulta sobre el pago",
+    other: "Otro motivo",
+  };
+
+  if (name.length < 2 || name.length > 80) {
+    return json({ error: "Ingresá tu nombre y apellido." }, 400);
+  }
+  if (email.length > 160 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return json({ error: "Ingresá un email válido." }, 400);
+  }
+  if (!reasonLabels[reason]) {
+    return json({ error: "Elegí el motivo de la consulta." }, 400);
+  }
+  if (message.length < 10 || message.length > 1500) {
+    return json({ error: "El mensaje debe tener entre 10 y 1500 caracteres." }, 400);
+  }
+  if (paymentId && !/^[A-Za-z0-9_-]{1,40}$/.test(paymentId)) {
+    return json({ error: "El número de operación no es válido." }, 400);
+  }
+
+  const hasReceipt =
+    receipt && typeof receipt.arrayBuffer === "function" && receipt.size > 0;
+  if (hasReceipt) {
+    if (receipt.size > SUPPORT_MAX_ATTACHMENT_BYTES) {
+      return json({ error: "El comprobante supera el máximo permitido de 5 MB." }, 413);
+    }
+    if (!SUPPORT_ALLOWED_FILE_TYPES.has(receipt.type)) {
+      return json({ error: "El comprobante debe ser un PDF, JPG, PNG o WEBP." }, 415);
+    }
+  }
+
+  if (!(await acceptSupportRequest(request, env, email))) {
+    return json(
+      { error: "Recibimos varias consultas seguidas. Esperá unos minutos antes de volver a enviar." },
+      429,
+    );
+  }
+
+  const safeName = escapeHtml(name);
+  const safeEmail = escapeHtml(email);
+  const safePaymentId = escapeHtml(paymentId || "No informado");
+  const safeReason = escapeHtml(reasonLabels[reason]);
+  const safeMessage = escapeHtml(message).replaceAll("\n", "<br>");
+  const attachments = [];
+
+  if (hasReceipt) {
+    const safeFilename = String(receipt.name || "comprobante")
+      .replace(/[^A-Za-z0-9._-]/g, "_")
+      .slice(0, 100);
+    attachments.push({
+      filename: safeFilename || "comprobante",
+      content: bytesToBase64(new Uint8Array(await receipt.arrayBuffer())),
+      content_type: receipt.type,
+    });
+  }
+
+  const supportEmail = env.SUPPORT_EMAIL || env.SELLER_EMAIL;
+  if (!supportEmail) throw new Error("Falta configurar el correo de soporte.");
+
+  await sendResendEmail(
+    env,
+    {
+      from: brandedEmailFrom(env.EMAIL_FROM),
+      to: [supportEmail],
+      reply_to: email,
+      subject: `Soporte web — ${reasonLabels[reason]}${paymentId ? ` — ${paymentId}` : ""}`,
+      text: `Nueva consulta de soporte\n\nNombre: ${name}\nEmail: ${email}\nOperación: ${paymentId || "No informada"}\nMotivo: ${reasonLabels[reason]}\n\nMensaje:\n${message}`,
+      html: `
+        <div style="font-family:Arial,sans-serif;color:#171717;line-height:1.6;max-width:640px;margin:auto">
+          <div style="background:#05A850;padding:22px 26px;border-radius:14px 14px 0 0">
+            <strong style="font-size:20px">Nueva consulta de soporte</strong>
+          </div>
+          <div style="padding:26px;border:1px solid #deded8;border-top:0;border-radius:0 0 14px 14px">
+            <p><strong>Nombre:</strong> ${safeName}<br>
+            <strong>Email:</strong> ${safeEmail}<br>
+            <strong>Operación:</strong> ${safePaymentId}<br>
+            <strong>Motivo:</strong> ${safeReason}</p>
+            <div style="margin-top:20px;padding:18px;background:#f7f1e4;border-left:5px solid #FED500">${safeMessage}</div>
+          </div>
+        </div>`,
+      ...(attachments.length ? { attachments } : {}),
+    },
+    `support/${crypto.randomUUID()}`,
+  );
+
+  return json({ ok: true });
+}
+
 async function handleWebhook(request, env) {
   const url = new URL(request.url);
   const body = await request.json().catch(() => ({}));
@@ -738,6 +904,9 @@ export default {
         url.pathname === "/api/purchases/access"
       ) {
         return await handlePurchaseAccess(request, env);
+      }
+      if (request.method === "POST" && url.pathname === "/api/support") {
+        return await handleSupportRequest(request, env);
       }
       if (
         request.method === "POST" &&

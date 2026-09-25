@@ -12,20 +12,44 @@ document.addEventListener("DOMContentLoaded", () => {
 function initSupportEmail() {
   const supportLink = document.getElementById("support-email-link");
   const modal = document.getElementById("support-alert");
+  const intro = document.getElementById("support-alert-intro");
   const continueButton = document.getElementById("support-alert-continue");
-  if (!supportLink || !modal || !continueButton) return;
+  const form = document.getElementById("support-form");
+  const backButton = document.getElementById("support-form-back");
+  const status = document.getElementById("support-form-status");
+  const success = document.getElementById("support-success");
+  if (
+    !supportLink ||
+    !modal ||
+    !intro ||
+    !continueButton ||
+    !form ||
+    !backButton ||
+    !status ||
+    !success
+  ) return;
 
   let previousFocus = null;
+
+  function showIntro() {
+    intro.hidden = false;
+    form.hidden = true;
+    success.hidden = true;
+    status.textContent = "";
+    status.classList.remove("is-success");
+  }
 
   function closeModal() {
     modal.hidden = true;
     document.body.classList.remove("support-modal-open");
     previousFocus?.focus();
+    window.setTimeout(showIntro, 150);
   }
 
   supportLink.addEventListener("click", (event) => {
     event.preventDefault();
     previousFocus = document.activeElement;
+    showIntro();
     modal.hidden = false;
     document.body.classList.add("support-modal-open");
     continueButton.focus();
@@ -36,8 +60,50 @@ function initSupportEmail() {
   });
 
   continueButton.addEventListener("click", () => {
-    closeModal();
-    window.location.href = supportLink.href;
+    intro.hidden = true;
+    form.hidden = false;
+    form.querySelector('input[name="name"]')?.focus();
+  });
+
+  backButton.addEventListener("click", () => {
+    showIntro();
+    continueButton.focus();
+  });
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    status.textContent = "";
+    status.classList.remove("is-success");
+
+    if (!form.reportValidity()) return;
+    const receipt = form.elements.receipt?.files?.[0];
+    if (receipt && receipt.size > 5 * 1024 * 1024) {
+      status.textContent = "El comprobante supera el máximo permitido de 5 MB.";
+      return;
+    }
+
+    const submitButton = form.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.textContent = "Enviando…";
+
+    try {
+      const response = await fetch("/api/support", {
+        method: "POST",
+        body: new FormData(form),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || "No pudimos enviar tu consulta.");
+
+      form.reset();
+      form.hidden = true;
+      success.hidden = false;
+      success.querySelector("[data-support-close]")?.focus();
+    } catch (error) {
+      status.textContent = error.message || "No pudimos enviar tu consulta. Intentá nuevamente.";
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = "Enviar consulta →";
+    }
   });
 
   document.addEventListener("keydown", (event) => {
