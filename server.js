@@ -290,7 +290,7 @@ function purchaseEmailHtml(payment, downloadUrl, payerName) {
             </div>
           </td></tr>
           <tr><td align="center" style="padding:24px 20px 6px;font-size:12px;line-height:1.6;color:#777777;">
-            Recibiste este correo porque realizaste una compra en Air Fryer 365.<br>
+            Recibiste este correo porque realizaste una compra en Buenas recetas.<br>
             Si necesitás ayuda, respondé directamente a este mensaje.
           </td></tr>
         </table>
