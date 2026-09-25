@@ -355,9 +355,9 @@ async function handleCheckout(request, env) {
     headers: { "x-idempotency-key": checkoutReference },
     body: JSON.stringify(body),
   });
-  const useSandbox = env.MP_ENVIRONMENT !== "production";
-  const checkoutUrl =
-    (useSandbox && preference.sandbox_init_point) || preference.init_point;
+  // Mercado Pago ejecuta las pruebas con usuarios y credenciales de prueba,
+  // pero el Checkout Pro actual se inicia siempre desde init_point.
+  const checkoutUrl = preference.init_point;
   if (!checkoutUrl) throw new Error("Mercado Pago no devolvió una URL de pago.");
   return json({ checkoutUrl }, 201);
 }
