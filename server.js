@@ -9,6 +9,16 @@ const { MercadoPagoConfig, Payment, Preference } = require("mercadopago");
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
+const BRAND_NAME = "Buenas Recetas";
+const BRAND_LOGO_URL =
+  "https://buenasrecetas.com.ar/assets/brand-logo-email.png?v=20260925-1";
+
+function brandedEmailFrom(value) {
+  const raw = String(value || "").trim();
+  const bracketedAddress = raw.match(/<([^>]+)>/)?.[1];
+  const address = bracketedAddress || raw;
+  return address ? `${BRAND_NAME} <${address}>` : raw;
+}
 
 app.disable("x-powered-by");
 app.use(express.json({ limit: "100kb" }));
@@ -256,7 +266,10 @@ function purchaseEmailHtml(payment, downloadUrl, payerName) {
       <tr><td align="center">
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;">
           <tr><td style="background:#00c76f;padding:34px 30px;border-radius:18px 18px 0 0;">
-            <div style="font-size:13px;font-weight:700;letter-spacing:1.8px;color:#073b26;margin-bottom:16px;">AIR FRYER 365</div>
+            <table role="presentation" cellspacing="0" cellpadding="0" style="margin-bottom:18px;"><tr>
+              <td style="width:50px;padding-right:13px;vertical-align:middle;"><img src="${BRAND_LOGO_URL}" width="50" alt="" style="display:block;width:50px;height:auto;border:0;"></td>
+              <td style="font-size:14px;font-weight:800;letter-spacing:1.6px;color:#073b26;vertical-align:middle;">BUENAS RECETAS</td>
+            </tr></table>
             <div style="font-size:27px;line-height:1.25;font-weight:800;color:#ffffff;">${heading}</div>
             <div style="margin-top:10px;font-size:15px;line-height:1.5;color:#073b26;">Tu recetario digital ya está listo para descargar.</div>
           </td></tr>
@@ -290,7 +303,7 @@ function purchaseEmailHtml(payment, downloadUrl, payerName) {
             </div>
           </td></tr>
           <tr><td align="center" style="padding:24px 20px 6px;font-size:12px;line-height:1.6;color:#777777;">
-            Recibiste este correo porque realizaste una compra en Buenas recetas.<br>
+            Recibiste este correo porque realizaste una compra en Buenas Recetas.<br>
             Si necesitás ayuda, respondé directamente a este mensaje.
           </td></tr>
         </table>
@@ -315,17 +328,17 @@ async function sendPurchaseEmails(payment, downloadUrl) {
   const greeting = payerName ? `, ${payerName}` : "";
 
   await transporter.sendMail({
-    from: process.env.SMTP_FROM || process.env.SMTP_USER,
+    from: brandedEmailFrom(process.env.SMTP_FROM || process.env.SMTP_USER),
     replyTo: process.env.SUPPORT_EMAIL || process.env.SELLER_EMAIL || undefined,
     to: deliveryEmail,
-    subject: `Tu compra fue aprobada — ${product.title}`,
+    subject: `Tu compra fue aprobada — ${BRAND_NAME}`,
     text: `¡Gracias por tu compra${greeting}!\n\nDescargá tu recetario: ${downloadUrl}\n\nEl enlace vence en ${linkExpirationDays} días.`,
     html: purchaseEmailHtml(payment, downloadUrl, payerName),
   });
 
   if (process.env.SELLER_EMAIL) {
     await transporter.sendMail({
-      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      from: brandedEmailFrom(process.env.SMTP_FROM || process.env.SMTP_USER),
       to: process.env.SELLER_EMAIL,
       subject: `Venta confirmada — ${payment.id}`,
       text: `Pago ${payment.id} aprobado por ${payment.transaction_amount} ${payment.currency_id}. Comprador: ${payerEmail}.`,

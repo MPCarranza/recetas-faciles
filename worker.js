@@ -1,5 +1,15 @@
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
+const BRAND_NAME = "Buenas Recetas";
+const BRAND_LOGO_URL =
+  "https://buenasrecetas.com.ar/assets/brand-logo-email.png?v=20260925-1";
+
+function brandedEmailFrom(value) {
+  const raw = String(value || "").trim();
+  const bracketedAddress = raw.match(/<([^>]+)>/)?.[1];
+  const address = bracketedAddress || raw;
+  return address ? `${BRAND_NAME} <${address}>` : raw;
+}
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -84,7 +94,10 @@ function purchaseEmailHtml(payment, downloadUrl, payerName, product, expirationD
       <tr><td align="center">
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;">
           <tr><td style="background:#00c76f;padding:34px 30px;border-radius:18px 18px 0 0;">
-            <div style="font-size:13px;font-weight:700;letter-spacing:1.8px;color:#073b26;margin-bottom:16px;">AIR FRYER 365</div>
+            <table role="presentation" cellspacing="0" cellpadding="0" style="margin-bottom:18px;"><tr>
+              <td style="width:50px;padding-right:13px;vertical-align:middle;"><img src="${BRAND_LOGO_URL}" width="50" alt="" style="display:block;width:50px;height:auto;border:0;"></td>
+              <td style="font-size:14px;font-weight:800;letter-spacing:1.6px;color:#073b26;vertical-align:middle;">BUENAS RECETAS</td>
+            </tr></table>
             <div style="font-size:27px;line-height:1.25;font-weight:800;color:#ffffff;">${heading}</div>
             <div style="margin-top:10px;font-size:15px;line-height:1.5;color:#073b26;">Tu recetario digital ya está listo para descargar.</div>
           </td></tr>
@@ -118,7 +131,7 @@ function purchaseEmailHtml(payment, downloadUrl, payerName, product, expirationD
             </div>
           </td></tr>
           <tr><td align="center" style="padding:24px 20px 6px;font-size:12px;line-height:1.6;color:#777777;">
-            Recibiste este correo porque realizaste una compra en Buenas recetas.<br>
+            Recibiste este correo porque realizaste una compra en Buenas Recetas.<br>
             Si necesitás ayuda, respondé directamente a este mensaje.
           </td></tr>
         </table>
@@ -565,10 +578,10 @@ async function handleWebhook(request, env) {
       await sendResendEmail(
         env,
         {
-          from: env.EMAIL_FROM,
+          from: brandedEmailFrom(env.EMAIL_FROM),
           to: [deliveryEmail],
           reply_to: env.SUPPORT_EMAIL || env.SELLER_EMAIL || undefined,
-          subject: `Tu compra fue aprobada — ${product.title}`,
+          subject: `Tu compra fue aprobada — ${BRAND_NAME}`,
           text: `¡Gracias por tu compra${greeting}!\n\nDescargá tu recetario: ${downloadUrl}\n\nEl enlace vence en ${expirationDays} días.`,
           html: purchaseEmailHtml(
             payment,
@@ -593,7 +606,7 @@ async function handleWebhook(request, env) {
       await sendResendEmail(
         env,
         {
-          from: env.EMAIL_FROM,
+          from: brandedEmailFrom(env.EMAIL_FROM),
           to: [env.SELLER_EMAIL],
           reply_to: env.SUPPORT_EMAIL || env.SELLER_EMAIL,
           subject: `Venta confirmada — ${payment.id}`,
