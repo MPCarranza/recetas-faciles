@@ -6,7 +6,21 @@ document.addEventListener("DOMContentLoaded", () => {
   initDynamicYear();
   initSmoothScroll();
   initCheckoutButtons();
+  initSupportEmail();
 });
+
+function initSupportEmail() {
+  const supportLink = document.getElementById("support-email-link");
+  if (!supportLink) return;
+
+  supportLink.addEventListener("click", (event) => {
+    event.preventDefault();
+    alert(
+      "Si realizaste la compra hace pocos minutos, no te preocupes: la acreditación y el envío del recetario pueden demorar según el método de pago.\n\nSi la compra ya fue aprobada y todavía no recibiste el recetario, adjuntá al correo el comprobante de compra que Mercado Pago mostró para descargar.",
+    );
+    window.location.href = supportLink.href;
+  });
+}
 
 function initCheckoutButtons() {
   const checkoutBtn = document.getElementById("btn-final-checkout");

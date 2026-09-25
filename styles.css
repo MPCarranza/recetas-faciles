@@ -2398,6 +2398,23 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 0.5rem;
 }
 
+.footer-support-contact {
+  margin-bottom: 0.65rem;
+  font-size: 0.72rem;
+  color: #94A3B8;
+}
+
+.footer-support-contact a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--transition-fast);
+}
+
+.footer-support-contact a:hover,
+.footer-support-contact a:focus-visible {
+  color: var(--yellow-primary);
+}
+
 .disclaimer {
   font-size: 0.75rem;
   color: #64748B;
