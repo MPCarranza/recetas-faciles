@@ -430,26 +430,24 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .brand-mark {
-  --brand-mark-size: 42px;
+  --brand-mark-height: 48px;
   position: relative;
   display: block;
-  width: var(--brand-mark-size);
-  height: var(--brand-mark-size);
-  flex: 0 0 var(--brand-mark-size);
+  width: calc(var(--brand-mark-height) * 0.91);
+  height: var(--brand-mark-height);
+  flex: 0 0 calc(var(--brand-mark-height) * 0.91);
   overflow: hidden;
-  background: #000;
-  border: 1px solid #000;
-  border-radius: 11px;
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.16);
+  background: transparent;
+  border-radius: 50% 50% 0 0 / 45% 45% 0 0;
 }
 
 .brand-mark img {
   position: absolute;
-  top: -58.3%;
-  left: -63.8%;
-  width: 222.22%;
+  top: -96.2%;
+  left: -117.4%;
+  width: auto;
+  height: 301.2%;
   max-width: none;
-  height: auto;
   pointer-events: none;
 }
 
@@ -2348,9 +2346,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .brand-mark--footer {
-  --brand-mark-size: 48px;
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: none;
+  --brand-mark-height: 55px;
 }
 
 .footer-bio {
