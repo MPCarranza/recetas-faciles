@@ -98,14 +98,20 @@ function initFloatingBar() {
   const floatingBar = document.getElementById("floating-bar");
   const heroSection = document.getElementById("hero");
   const finalOfferSection = document.getElementById("oferta");
+  const footerSection = document.querySelector(".site-footer");
   if (!floatingBar || !heroSection) return;
   function checkScroll() {
     const offerRect = finalOfferSection?.getBoundingClientRect();
+    const footerRect = footerSection?.getBoundingClientRect();
     const inFinalOffer =
       offerRect && offerRect.top <= window.innerHeight && offerRect.bottom >= 0;
+    const footerIsVisible =
+      footerRect && footerRect.top <= window.innerHeight && footerRect.bottom >= 0;
     floatingBar.classList.toggle(
       "is-visible",
-      heroSection.getBoundingClientRect().bottom < 0 && !inFinalOffer,
+      heroSection.getBoundingClientRect().bottom < 0 &&
+        !inFinalOffer &&
+        !footerIsVisible,
     );
   }
   window.addEventListener("scroll", checkScroll, { passive: true });
