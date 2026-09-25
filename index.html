@@ -28,7 +28,7 @@
       href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet" />
 
-    <link rel="stylesheet" href="styles.css?v=20260925-13" />
+    <link rel="stylesheet" href="styles.css?v=20260925-14" />
   </head>
   <body>
     <!-- Header / Navigation Bar -->
@@ -1035,6 +1035,45 @@
       </div>
     </footer>
 
-    <script src="script.js?v=20260925-4"></script>
+    <div class="support-modal" id="support-alert" hidden>
+      <button
+        type="button"
+        class="support-modal-backdrop"
+        data-support-close
+        tabindex="-1"
+        aria-label="Cerrar aviso"></button>
+      <section
+        class="support-modal-card"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="support-alert-title"
+        aria-describedby="support-alert-description">
+        <button
+          type="button"
+          class="support-modal-close"
+          data-support-close
+          aria-label="Cerrar aviso">×</button>
+        <span class="support-modal-badge">ANTES DE ESCRIBIRNOS</span>
+        <h2 id="support-alert-title">
+          Estamos para <span>ayudarte.</span>
+        </h2>
+        <div id="support-alert-description" class="support-modal-copy">
+          <p>
+            Si realizaste la compra hace pocos minutos, no te preocupes: la
+            acreditación y el envío pueden demorar según el método de pago.
+          </p>
+          <p class="support-modal-notice">
+            Si la compra ya fue aprobada y todavía no recibiste el recetario,
+            adjuntá al correo el comprobante de compra que Mercado Pago mostró
+            para descargar.
+          </p>
+        </div>
+        <button type="button" class="support-modal-action" id="support-alert-continue">
+          Entendido, escribir a soporte →
+        </button>
+      </section>
+    </div>
+
+    <script src="script.js?v=20260925-5"></script>
   </body>
 </html>

@@ -11,14 +11,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function initSupportEmail() {
   const supportLink = document.getElementById("support-email-link");
-  if (!supportLink) return;
+  const modal = document.getElementById("support-alert");
+  const continueButton = document.getElementById("support-alert-continue");
+  if (!supportLink || !modal || !continueButton) return;
+
+  let previousFocus = null;
+
+  function closeModal() {
+    modal.hidden = true;
+    document.body.classList.remove("support-modal-open");
+    previousFocus?.focus();
+  }
 
   supportLink.addEventListener("click", (event) => {
     event.preventDefault();
-    alert(
-      "Si realizaste la compra hace pocos minutos, no te preocupes: la acreditación y el envío del recetario pueden demorar según el método de pago.\n\nSi la compra ya fue aprobada y todavía no recibiste el recetario, adjuntá al correo el comprobante de compra que Mercado Pago mostró para descargar.",
-    );
+    previousFocus = document.activeElement;
+    modal.hidden = false;
+    document.body.classList.add("support-modal-open");
+    continueButton.focus();
+  });
+
+  modal.querySelectorAll("[data-support-close]").forEach((button) => {
+    button.addEventListener("click", closeModal);
+  });
+
+  continueButton.addEventListener("click", () => {
+    closeModal();
     window.location.href = supportLink.href;
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !modal.hidden) closeModal();
   });
 }
 
