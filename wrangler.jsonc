@@ -33,7 +33,7 @@
   ],
   "vars": {
     "NODE_ENV": "production",
-    "MP_ENVIRONMENT": "sandbox",
+    "MP_ENVIRONMENT": "production",
     "APP_BASE_URL": "https://buenasrecetas.com.ar",
     "SELLER_EMAIL": "365recetasparavos@gmail.com",
     "SUPPORT_EMAIL": "365recetasparavos@gmail.com",
