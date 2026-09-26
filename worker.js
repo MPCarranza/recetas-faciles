@@ -804,6 +804,12 @@ async function handleWebhook(request, env) {
     return new Response(null, { status: 401 });
   }
 
+  // El simulador oficial de Mercado Pago firma la solicitud, pero utiliza un
+  // evento ficticio. Confirmamos su recepción sin consultar ni entregar pagos.
+  if (body?.live_mode === false && String(body?.id || "") === "123456") {
+    return new Response(null, { status: 200 });
+  }
+
   try {
     const product = productFromEnv(env);
     const payment = await mercadoPagoRequest(env, `/v1/payments/${encodeURIComponent(paymentId)}`);
